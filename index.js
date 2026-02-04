@@ -56,7 +56,7 @@ global.API = (name, path = '/', query = {}, apikeyqueryname) => (name in global.
 
 // Health Check Server
 const app = express();
-const ports = [8000, 3000, 5000, 4444, 8080];
+const ports = [process.env.PORT || 8000, 8080, 3000, 5000, 4444];
 function startExpress(portIndex = 0) {
     if (portIndex >= ports.length) return console.log('No available ports for health check server.');
     const port = ports[portIndex];

@@ -108,17 +108,19 @@ module.exports = {
             let usedPrefix;
             let _user = global.db.data.users[m.sender];
 
-            let isROwner = [this.user.jid, ...global.owner]
-                .map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net')
-                .includes(m.sender.endsWith('@lid') ? this.getJid(m.sender) : m.sender);
+            // Fixed Robust Owner Detection
+            let isROwner = [this.user?.id, ...global.owner, global.numberowner]
+                .map(v => v?.replace(/[^0-9]/g, '') + '@s.whatsapp.net')
+                .includes(m.sender.replace(/[^0-9]/g, '') + '@s.whatsapp.net');
+
             let isOwner = isROwner || m.fromMe;
             let isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender);
-            let isPrems = isROwner || (_user.premiumTime > 0 || _user.premium);
+            let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || (_user.premiumTime > 0 || _user.premium);
 
             const groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
             const participants = (m.isGroup ? groupMetadata.participants : []) || [];
             const user = (m.isGroup ? participants.find((u) => this.getJid(u.id) === m.sender) : {}) || {};
-            const bot = (m.isGroup ? participants.find((u) => this.getJid(u.id) == this.user.jid) : {}) || {};
+            const bot = (m.isGroup ? participants.find((u) => this.getJid(u.id) == this.user?.id) : {}) || {};
             const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
             const isBotAdmin = bot?.admin || false;
 
@@ -270,7 +272,8 @@ module.exports = {
         }
     },
 
-    async delete({ remoteJid, fromMe, id, participant }) {
+    async delete(key) {
+        let { remoteJid, fromMe, id, participant } = key;
         if (fromMe) return;
         let chats = Object.entries(this.chats).find(([user, data]) => data.messages && data.messages[id]);
         if (!chats) return;

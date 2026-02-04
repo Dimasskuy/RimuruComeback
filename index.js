@@ -6,8 +6,7 @@ const {
     DisconnectReason,
     fetchLatestBaileysVersion,
     makeCacheableSignalKeyStore,
-    Browsers,
-    jidDecode
+    Browsers
 } = require('@adiwajshing/baileys');
 const { makeWASocket, protoType } = require('./lib/simple');
 const pino = require('pino');
@@ -19,6 +18,7 @@ const chalk = require('chalk');
 const _ = require('lodash');
 const express = require('express');
 const qrcode = require('qrcode-terminal');
+const readline = require('readline');
 
 // Execute Prototype Extension
 protoType();
@@ -26,9 +26,10 @@ protoType();
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse());
 global.prefix = new RegExp('^[' + (opts['prefix'] || '‎xzXZ/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.\\-') + ']');
 
+const sessionPath = opts._[0] || 'sessions';
+
 global.db = new Low(new JSONFile('database.json'));
 global.DATABASE = global.db;
-global.timestamp = { start: new Date() };
 global.loadDatabase = async function loadDatabase() {
     if (global.db.READ) return new Promise((resolve) => setInterval(function () {
         (!global.db.READ ? (clearInterval(this), resolve(global.db.data == null ? global.loadDatabase() : global.db.data)) : null)
@@ -53,21 +54,28 @@ global.APIs = { botcahx: 'https://api.botcahx.eu.org' };
 global.APIKeys = { 'https://api.botcahx.eu.org': 'YOUR_APIKEY_HERE' };
 global.API = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({ ...query, ...(apikeyqueryname ? { [apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name] } : {}) })) : '');
 
-// Lightweight Express Server for Health Checks
+// Health Check Server
 const app = express();
-const port = process.env.PORT || 8000;
-app.get('/', (req, res) => res.json({ status: 'true', message: 'Bot Successfully Activated!' }));
-app.listen(port, () => console.log(chalk.yellow(`🌐 Health check server listening on port ${port}`)));
+const ports = [8000, 3000, 5000, 4444, 8080];
+function startExpress(portIndex = 0) {
+    if (portIndex >= ports.length) return console.log('No available ports for health check server.');
+    const port = ports[portIndex];
+    const server = app.listen(port, () => {
+        console.log(chalk.yellow(`🌐 Health check server listening on port ${port}`));
+        app.get('/', (req, res) => res.json({ status: 'true', message: 'Bot Successfully Activated!' }));
+    }).on('error', () => startExpress(portIndex + 1));
+}
+startExpress();
 
 async function start() {
-    const { state, saveCreds } = await useMultiFileAuthState('sessions');
+    const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
     const { version, isLatest } = await fetchLatestBaileysVersion();
     console.log(chalk.magenta(`-- using WA v${version.join('.')}, isLatest: ${isLatest} --`));
 
     const connectionOptions = {
         version,
         logger: pino({ level: 'silent' }),
-        printQRInTerminal: false, // Handle QR manually to avoid deprecation warning
+        printQRInTerminal: false,
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' }))
@@ -83,12 +91,12 @@ async function start() {
 
     global.conn = makeWASocket(connectionOptions);
 
-    if (global.opts['pairing'] && !conn.authState.creds.registered) {
-        const readline = require('readline');
+    // Default to Pairing Code if not registered
+    if (!conn.authState.creds.registered) {
         const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
         const question = (text) => new Promise((resolve) => rl.question(text, resolve));
 
-        console.log(chalk.yellow('-- Please wait, generating code... --'));
+        console.log(chalk.yellow('-- Please wait, generating pairing code... --'));
         let phoneNumber = await question(chalk.yellow('ENTER A VALID NUMBER START WITH REGION CODE. Example : 62xxx:\n'));
         phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
 
@@ -98,7 +106,7 @@ async function start() {
         }
 
         setTimeout(async () => {
-            let code = await conn.requestPairingCode(phoneNumber);
+            let code = await conn.requestPairingCode(phoneNumber, "RTXZYBOT");
             code = code?.match(/.{1,4}/g)?.join('-') || code;
             console.log(chalk.black(chalk.bgGreen('Your Pairing Code : ')), chalk.black(chalk.bgWhite(code)));
             rl.close();
@@ -122,22 +130,20 @@ async function start() {
 
     conn.ev.on('call', async (call) => {
         const { id, from, status } = call[0];
-        console.log('Incoming call:', status, 'from', from);
         if (status === 'ringing') {
             await conn.rejectCall(id, from);
-            console.log(chalk.red('Call rejected.'));
+            console.log(chalk.red(`Rejected incoming call from ${from}`));
         }
     });
 
     conn.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect, qr } = update;
-        if (qr) {
-            console.log(chalk.yellow('Scan the QR code below:'));
+        if (qr && !conn.authState.creds.registered) {
+            console.log(chalk.yellow('Scan the QR code below (or use pairing code if prompted):'));
             qrcode.generate(qr, { small: true });
         }
         if (connection === 'close') {
             const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log('Connection closed. Reconnecting:', shouldReconnect);
             if (shouldReconnect) start();
         } else if (connection === 'open') {
             console.log(chalk.green('🌐 Connection opened'));

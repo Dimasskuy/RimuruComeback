@@ -1,8 +1,8 @@
-global.owner = ['6282257529886'] // wajib di isi tidak boleh kosong
-global.mods  = ['6282257529886'] // wajib di isi tidak boleh kosong
-global.prems = ['6282257529886'] // wajib di isi tidak boleh kosong
+global.owner = ['6285196174124'] // wajib di isi tidak boleh kosong
+global.mods  = ['6285196174124'] // wajib di isi tidak boleh kosong
+global.prems = ['6285196174124'] // wajib di isi tidak boleh kosong
 global.nameowner = 'dmss' // wajib di isi tidak boleh kosong
-global.numberowner = '6282257529886' // wajib di isi tidak boleh kosong
+global.numberowner = '6285196174124' // wajib di isi tidak boleh kosong
 global.mail = 'rimurubetaa@gmail.com' // wajib di isi tidak boleh kosong
 global.gc = 'https://chat.whatsapp.com/DXPU5F2cePXEaysvcImdUy' // wajib di isi tidak boleh kosong
 global.instagram = 'https://instagram.com/prm2.0' // wajib di isi tidak boleh kosong

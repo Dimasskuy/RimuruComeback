@@ -91,26 +91,20 @@ async function start() {
 
     global.conn = makeWASocket(connectionOptions);
 
-    // Default to Pairing Code if not registered
+    // Automated Pairing Code from config.js
     if (!conn.authState.creds.registered) {
-        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-        const question = (text) => new Promise((resolve) => rl.question(text, resolve));
-
-        console.log(chalk.yellow('-- Please wait, generating pairing code... --'));
-        let phoneNumber = await question(chalk.yellow('ENTER A VALID NUMBER START WITH REGION CODE. Example : 62xxx:\n'));
-        phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
-
-        if (phoneNumber.length < 10) {
-            console.log(chalk.red('Invalid phone number.'));
-            process.exit(0);
+        let phoneNumber = global.numberowner;
+        if (phoneNumber) {
+            phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
+            console.log(chalk.yellow(`-- Generating pairing code for owner number: ${phoneNumber} --`));
+            setTimeout(async () => {
+                let code = await conn.requestPairingCode(phoneNumber, "RTXZYBOT");
+                code = code?.match(/.{1,4}/g)?.join('-') || code;
+                console.log(chalk.black(chalk.bgGreen('Your Pairing Code : ')), chalk.black(chalk.bgWhite(code)));
+            }, 3000);
+        } else {
+            console.log(chalk.red('Please set global.numberowner in config.js to use automatic pairing code.'));
         }
-
-        setTimeout(async () => {
-            let code = await conn.requestPairingCode(phoneNumber, "RTXZYBOT");
-            code = code?.match(/.{1,4}/g)?.join('-') || code;
-            console.log(chalk.black(chalk.bgGreen('Your Pairing Code : ')), chalk.black(chalk.bgWhite(code)));
-            rl.close();
-        }, 3000);
     }
 
     conn.ev.on('creds.update', saveCreds);
@@ -138,8 +132,8 @@ async function start() {
 
     conn.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect, qr } = update;
-        if (qr && !conn.authState.creds.registered) {
-            console.log(chalk.yellow('Scan the QR code below (or use pairing code if prompted):'));
+        if (qr && !conn.authState.creds.registered && !global.numberowner) {
+            console.log(chalk.yellow('Scan the QR code below:'));
             qrcode.generate(qr, { small: true });
         }
         if (connection === 'close') {

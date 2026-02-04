@@ -6,7 +6,8 @@ const {
     DisconnectReason,
     fetchLatestBaileysVersion,
     makeCacheableSignalKeyStore,
-    Browsers
+    Browsers,
+    jidDecode
 } = require('@adiwajshing/baileys');
 const { makeWASocket, protoType } = require('./lib/simple');
 const pino = require('pino');
@@ -16,6 +17,8 @@ const { Low, JSONFile } = require('./lib/lowdb');
 const yargs = require('yargs/yargs');
 const chalk = require('chalk');
 const _ = require('lodash');
+const express = require('express');
+const qrcode = require('qrcode-terminal');
 
 // Execute Prototype Extension
 protoType();
@@ -25,6 +28,7 @@ global.prefix = new RegExp('^[' + (opts['prefix'] || '‎xzXZ/i!#$%+£¢€¥^°
 
 global.db = new Low(new JSONFile('database.json'));
 global.DATABASE = global.db;
+global.timestamp = { start: new Date() };
 global.loadDatabase = async function loadDatabase() {
     if (global.db.READ) return new Promise((resolve) => setInterval(function () {
         (!global.db.READ ? (clearInterval(this), resolve(global.db.data == null ? global.loadDatabase() : global.db.data)) : null)
@@ -49,6 +53,12 @@ global.APIs = { botcahx: 'https://api.botcahx.eu.org' };
 global.APIKeys = { 'https://api.botcahx.eu.org': 'YOUR_APIKEY_HERE' };
 global.API = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({ ...query, ...(apikeyqueryname ? { [apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name] } : {}) })) : '');
 
+// Lightweight Express Server for Health Checks
+const app = express();
+const port = process.env.PORT || 8000;
+app.get('/', (req, res) => res.json({ status: 'true', message: 'Bot Successfully Activated!' }));
+app.listen(port, () => console.log(chalk.yellow(`🌐 Health check server listening on port ${port}`)));
+
 async function start() {
     const { state, saveCreds } = await useMultiFileAuthState('sessions');
     const { version, isLatest } = await fetchLatestBaileysVersion();
@@ -57,7 +67,7 @@ async function start() {
     const connectionOptions = {
         version,
         logger: pino({ level: 'silent' }),
-        printQRInTerminal: !global.opts['pairing'],
+        printQRInTerminal: false, // Handle QR manually to avoid deprecation warning
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' }))
@@ -98,6 +108,7 @@ async function start() {
     conn.ev.on('creds.update', saveCreds);
 
     const { handler, participantsUpdate, delete: _delete } = require('./handler');
+
     conn.ev.on('messages.upsert', async (chatUpdate) => {
         if (conn.pushMessage) await conn.pushMessage(chatUpdate.messages).catch(console.error);
         await handler.call(conn, chatUpdate);
@@ -109,10 +120,24 @@ async function start() {
         }
     });
 
+    conn.ev.on('call', async (call) => {
+        const { id, from, status } = call[0];
+        console.log('Incoming call:', status, 'from', from);
+        if (status === 'ringing') {
+            await conn.rejectCall(id, from);
+            console.log(chalk.red('Call rejected.'));
+        }
+    });
+
     conn.ev.on('connection.update', async (update) => {
-        const { connection, lastDisconnect } = update;
+        const { connection, lastDisconnect, qr } = update;
+        if (qr) {
+            console.log(chalk.yellow('Scan the QR code below:'));
+            qrcode.generate(qr, { small: true });
+        }
         if (connection === 'close') {
             const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log('Connection closed. Reconnecting:', shouldReconnect);
             if (shouldReconnect) start();
         } else if (connection === 'open') {
             console.log(chalk.green('🌐 Connection opened'));
@@ -125,7 +150,7 @@ async function start() {
         try {
             global.plugins[filename] = require(path.join(pluginsFolder, filename));
         } catch (e) {
-            console.error(e);
+            console.error(`Error loading plugin ${filename}:`, e);
         }
     }
     global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b)));

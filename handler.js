@@ -109,13 +109,27 @@ module.exports = {
             let _user = global.db.data.users[m.sender];
 
             // Fixed Robust Owner Detection
-            let isROwner = [this.decodeJid(this.user.id), ...global.owner, global.numberowner]
-                .map(v => v?.replace(/[^0-9]/g, '') + '@s.whatsapp.net')
-                .includes(this.getJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net');
+            const senderJid = this.getJid(m.sender)
+            const ownerList = [
+                this.decodeJid(this.user.id),
+                ...global.owner,
+                global.numberowner,
+                ...(global.mods || []),
+                ...(global.prems || [])
+            ].map(v => v?.replace(/[^0-9]/g, '') + '@s.whatsapp.net')
+
+            let isROwner = ownerList.includes(senderJid.replace(/[^0-9]/g, '') + '@s.whatsapp.net') ||
+                          ownerList.includes(this.decodeJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net') ||
+                          global.owner.some(v => v.replace(/[^0-9]/g, '') === m.sender.split('@')[0])
 
             let isOwner = isROwner || m.fromMe;
-            let isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(this.getJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net');
-            let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(this.getJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net') || (_user.premiumTime > 0 || _user.premium);
+            let isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(senderJid.replace(/[^0-9]/g, '') + '@s.whatsapp.net');
+            let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(senderJid.replace(/[^0-9]/g, '') + '@s.whatsapp.net') || (_user.premiumTime > 0 || _user.premium);
+
+            m.isROwner = isROwner
+            m.isOwner = isOwner
+            m.isMods = isMods
+            m.isPrems = isPrems
 
             const groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
             const participants = (m.isGroup ? groupMetadata.participants : []) || [];

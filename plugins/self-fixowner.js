@@ -1,12 +1,13 @@
 let handler = async (m, { conn }) => {
-  // Ambil nomor pengirim
-  let sender = m.sender.split('@')[0];
+  // Ambil nomor pengirim (resolve LID if any)
+  let senderJid = conn.getJid(m.sender);
+  let sender = senderJid.split('@')[0];
 
   // Ambil nomor owner dari config
   let configOwner = global.owner.map(v => v.replace(/[^0-9]/g, ''));
 
   // Cek apakah nomor pengirim ada di config owner
-  if (configOwner.includes(sender)) {
+  if (configOwner.includes(sender) || configOwner.includes(m.sender.split('@')[0])) {
     // Jika iya, tambahkan ke database sebagai owner
     let user = global.db.data.users[m.sender];
     if (user) {

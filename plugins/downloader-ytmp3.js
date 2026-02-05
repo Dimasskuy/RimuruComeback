@@ -44,4 +44,5 @@ handler.tags = ['downloader'];
 handler.command = /^ytmp3$/i;
 handler.limit = true;
 
+handler.register = true
 module.exports = handler;

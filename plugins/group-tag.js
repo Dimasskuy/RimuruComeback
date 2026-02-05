@@ -12,4 +12,5 @@ handler.command = /^(totag|tag)$/i
 handler.admin = true
 handler.group = true
 
+handler.register = true
 module.exports = handler

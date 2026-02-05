@@ -26,4 +26,5 @@ handler.help = ['kandang']
 handler.tags = ['rpg']
 handler.command = /^(kandang)$/i
 
+handler.register = true
 module.exports = handler

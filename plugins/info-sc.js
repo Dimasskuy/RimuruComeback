@@ -9,4 +9,5 @@ handler.help = ['sc', 'sourcecode']
 handler.tags = ['info']
 handler.command = /^(sc|sourcecode)$/i
 
+handler.register = true
 module.exports = handler

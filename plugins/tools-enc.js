@@ -9,4 +9,5 @@ handler.help = ['enc']
 handler.tags = ['tools']
 handler.command = /^enc$/i
 
+handler.register = true
 module.exports = handler

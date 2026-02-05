@@ -21,6 +21,7 @@ handler.command = handler.help = ['cekkhodam','cekhodam','cekodam'];
 handler.tags = ['fun'];
 handler.limit = true;
 
+handler.register = true
 module.exports = handler;
 
 async function khodamnya() {

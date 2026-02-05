@@ -67,4 +67,5 @@ handler.tags = ['owner'];
 handler.command = /^autobackup$/i;
 handler.owner = true;
 
+handler.register = true
 module.exports = handler;

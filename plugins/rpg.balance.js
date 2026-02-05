@@ -21,4 +21,5 @@ handler.help = ['balance']
 handler.tags = ['rpg']
 handler.command = ['bal', 'balance'] 
 
+handler.register = true
 module.exports = handler;

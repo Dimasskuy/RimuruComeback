@@ -15,4 +15,5 @@ var handler = async (m) => {
 };
 handler.command = handler.help = ['getexif'];
 handler.tags = ['sticker'];
+handler.register = true
 module.exports = handler;

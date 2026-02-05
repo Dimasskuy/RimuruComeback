@@ -21,4 +21,5 @@ handler.before = async function (m, { match }) {
     return !0
 }
 
+handler.register = true
 module.exports = handler

@@ -26,4 +26,5 @@ handler.command = handler.help = ['restartsession'];
 handler.tags = ['owner'];
 handler.owner = true;
 
+handler.register = true
 module.exports = handler;

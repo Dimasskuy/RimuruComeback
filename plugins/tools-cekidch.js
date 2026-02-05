@@ -43,4 +43,5 @@ handler.tags = ['tools'];
 handler.premium = false;
 handler.limit = true;
 
+handler.register = true
 module.exports = handler;

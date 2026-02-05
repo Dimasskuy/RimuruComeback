@@ -47,4 +47,5 @@ handler.botAdmin = true;
 handler.admin = true;
 handler.fail = null;
 
+handler.register = true
 module.exports = handler;

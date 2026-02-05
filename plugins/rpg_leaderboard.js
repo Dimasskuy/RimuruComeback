@@ -63,7 +63,8 @@ let handler = async (m, { conn, args, participants }) => {
   handler.fail = null
   handler.exp = 0
   
-  module.exports = handler
+  handler.register = true
+module.exports = handler
   
   function sort(property, ascending = true) {
     if (property) return (...args) => args[ascending & 1][property] - args[!ascending & 1][property]

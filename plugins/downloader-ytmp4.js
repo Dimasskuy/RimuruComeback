@@ -81,4 +81,5 @@ handler.tags = ['downloader'];
 handler.command = /^(ytmp4|ytv|ytm4)$/i;
 handler.limit = true;
 
+handler.register = true
 module.exports = handler;

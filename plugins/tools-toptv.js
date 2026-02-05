@@ -23,4 +23,5 @@ handler.help = ['ptv','toptv']
 handler.command = /^(toptv|ptv|ptvmessage)$/i
 handler.tags = ['tools']
 handler.limit = true;
+handler.register = true
 module.exports = handler

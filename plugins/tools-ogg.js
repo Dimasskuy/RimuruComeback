@@ -24,4 +24,5 @@ handler.help = ['tomp3', 'tovn']
 handler.tags = ['voice']
 handler.command = /^to(mp3|vn|ptt)$/i
 
+handler.register = true
 module.exports = handler

@@ -89,4 +89,5 @@ handler.tags = ['downloader'];
 handler.command = /^(tiktok|tt)$/i;
 handler.limit = true;
 
+handler.register = true
 module.exports = handler;

@@ -25,4 +25,5 @@ handler.tags = ['owner']
 handler.command = /^ban(chat)?$/i
 
 handler.owner = true
+handler.register = true
 module.exports = handler

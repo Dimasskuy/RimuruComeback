@@ -33,4 +33,5 @@ handler.command = handler.help = ['libur', 'liburnasional']
 handler.tags = ['tools'];
 handler.limit = true;
 
+handler.register = true
 module.exports = handler;

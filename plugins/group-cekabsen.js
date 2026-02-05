@@ -30,4 +30,5 @@ handler.tags = ['group']
 handler.command = /^cekabsen$/i
 handler.group = true
 
+handler.register = true
 module.exports = handler;

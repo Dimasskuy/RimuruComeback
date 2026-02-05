@@ -88,4 +88,5 @@ Room ID: ${room.id}
     return !0
 }
 
+handler.register = true
 module.exports = handler

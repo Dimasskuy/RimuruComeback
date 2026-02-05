@@ -37,6 +37,7 @@ handler.command = /^(setppgc|setppgrup|setppgroup)$/i
 handler.group = true
 handler.admin = true
 handler.botAdmin = true
+handler.register = true
 module.exports = handler
 
 async function generateProfilePicture(buffer) {

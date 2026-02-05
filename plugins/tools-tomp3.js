@@ -14,4 +14,5 @@ handler.help = ['toaudio (reply)']
 handler.tags = ['tools']
 handler.command = /^to(a(udio)?)$/i
 
+handler.register = true
 module.exports = handler

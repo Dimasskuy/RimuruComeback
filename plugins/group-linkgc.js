@@ -12,4 +12,5 @@ handler.command = /^link(g(c)?ro?up)?$/i
 handler.group = true
 handler.admin = true
 
+handler.register = true
 module.exports = handler

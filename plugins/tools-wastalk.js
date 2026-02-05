@@ -38,4 +38,5 @@ handler.tags = ['tools']
 handler.command = /^(wa|whatsapp)stalk$/i
 handler.limit = true
 
+handler.register = true
 module.exports = handler

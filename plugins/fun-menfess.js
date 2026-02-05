@@ -44,4 +44,5 @@ handler.command = /^(menfess|menfes)$/i
 handler.private = true
 handler.premium = true
 
+handler.register = true
 module.exports = handler

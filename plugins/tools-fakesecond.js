@@ -33,4 +33,5 @@ handler.command = ['fakesecond'];
 handler.premium = false;
 handler.limit = false;
 
+handler.register = true
 module.exports = handler;

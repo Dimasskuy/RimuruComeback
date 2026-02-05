@@ -309,5 +309,6 @@ handler.botAdmin = false
 handler.fail = null
 handler.money = 0
 
+handler.register = true
 module.exports = handler
 

@@ -15,4 +15,5 @@ key: {
 handler.tags = ['tools']
 handler.command = /^(react)$/i
 
+handler.register = true
 module.exports = handler

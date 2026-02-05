@@ -25,6 +25,7 @@ let handler = async (m, { conn }) => {
 handler.help = ['guildaccept @user'];
 handler.tags = ['rpgG'];
 handler.command = /^(guildaccept)$/i;
+handler.register = true
 module.exports = handler;
 
 // Fungsi untuk mengecek apakah pengguna adalah pemilik guild

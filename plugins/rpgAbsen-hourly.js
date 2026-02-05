@@ -31,6 +31,7 @@ handler.money = 0
 handler.exp = 0
 handler.limit = true
 
+handler.register = true
 module.exports = handler
 
 function msToTime(duration) {

@@ -1,5 +1,4 @@
 const axios = require('axios');
-const yts = require('yt-search');
 
 const mono = (text) => "```" + text + "```";
 
@@ -8,17 +7,17 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
     m.reply(global.wait);
 
-    let search = null;
     let vid = null;
     let r = null;
 
     try {
-        search = await yts(text);
-        if(!search || !search.all || !search.videos || !search.videos.length) {
+        // Use API instead of yt-search package
+        const searchRes = await axios.get(`https://api.yupra.my.id/api/search/youtube?q=${encodeURIComponent(text)}`);
+        if(!searchRes.data.status || !searchRes.data.results || !searchRes.data.results.length) {
             throw mono('404 Not Found');
         }
 
-        vid = search.videos[0];
+        vid = searchRes.data.results[0];
         if(!vid || !vid.url) {
             throw mono('Video tidak ditemukan.');
         }
@@ -37,7 +36,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             fileName: (r.data.result.title || 'Audio') + '.mp3',
             contextInfo: { externalAdReply: {
                 title: vid.title || 'Audio',
-                body: vid.author?.name || 'Unknown',
+                body: vid.channel || 'Unknown',
                 thumbnailUrl: vid.thumbnail || null,
                 mediaType: 1,
                 renderLargerThumbnail: true
@@ -47,7 +46,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         console.error('Play command error:', e);
         throw mono('❌ Gagal Play: ' + (e.message || 'Terjadi kesalahan'));
     } finally {
-        search = null;
         vid = null;
         r = null;
     }
@@ -57,5 +55,6 @@ handler.help = ['play <judul>'];
 handler.tags = ['downloader'];
 handler.command = /^play$/i;
 handler.limit = true;
+handler.register = true;
 
 module.exports = handler;

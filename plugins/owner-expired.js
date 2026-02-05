@@ -103,7 +103,8 @@ let handler = async (m, { conn, command, usedPrefix, text, participants }) => {
      
   handler.owner = true
      
-  module.exports = handler
+  handler.register = true
+module.exports = handler
   
   function msToDate(ms) {
       let temp = ms;

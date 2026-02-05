@@ -19,4 +19,5 @@ handler.tags = ['tools'];
 handler.botaadmin = true;
 handler.command = ['del', 'delete', 'unsend'];
 
+handler.register = true
 module.exports = handler;

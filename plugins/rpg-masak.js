@@ -196,4 +196,5 @@ handler.tags = ['rpg']
 handler.group = true
 handler.command = /^(masak|cook)$/i
 
+handler.register = true
 module.exports = handler

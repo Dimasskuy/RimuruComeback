@@ -16,4 +16,5 @@ handler.register = false
 handler.admin = true
 handler.botAdmin = true
 
+handler.register = true
 module.exports = handler

@@ -22,6 +22,7 @@ handler.command = /^(s(tic?ker)?me(me)?)$/i
 
 handler.limit = false
 
+handler.register = true
 module.exports = handler
 
 async function uploadImage(buffer) { 

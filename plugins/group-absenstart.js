@@ -15,4 +15,5 @@ handler.tags = ['group']
 handler.command = /^(start|mulai)absen$/i
 handler.group = true
 handler.admin = true
+handler.register = true
 module.exports = handler;

@@ -27,6 +27,7 @@ cek .balance jumlah hadiah mu!
 handler.help = handler.command = ['daily'];
 handler.tags = ['rpg'];
 
+handler.register = true
 module.exports = handler;
 
 function msToTime(duration) {

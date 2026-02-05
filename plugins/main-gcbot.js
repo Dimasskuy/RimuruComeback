@@ -5,4 +5,5 @@ handler.help = ['gcbot']
 handler.tags = ['main']
 handler.command = /^(gcbot)$/i
 
+handler.register = true
 module.exports = handler

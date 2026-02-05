@@ -169,4 +169,5 @@ handler.tags = ['rpg']
 handler.group = true
 handler.command = /^(repair|perbaiki)/i
 
+handler.register = true
 module.exports = handler

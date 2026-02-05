@@ -13,5 +13,6 @@ module.exports = Object.assign(async function handler(m, { isOwner, isPremium, c
 }, {
     help: ['un', ''].map(v => v + 'lockcmd'),
     tags: ['database'],
+    register: true,
     command: /^(un)?lockcmd$/i
 })

@@ -38,4 +38,5 @@ handler.command = ['fakesize'];
 handler.premium = false;
 handler.limit = false;
 
+handler.register = true
 module.exports = handler;

@@ -26,4 +26,5 @@ handler.tags = ['owner'];
 handler.command = ['listmute'];
 handler.owner = true;
 
+handler.register = true
 module.exports = handler;

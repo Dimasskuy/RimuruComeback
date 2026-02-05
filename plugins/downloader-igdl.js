@@ -39,4 +39,5 @@ handler.tags = ['downloader'];
 handler.command = /^(instagram|ig|igdl)$/i;
 handler.limit = true;
 
+handler.register = true
 module.exports = handler;

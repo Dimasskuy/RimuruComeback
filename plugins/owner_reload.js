@@ -11,4 +11,5 @@ handler.tags = ['owner']
 handler.command = /^reload$/i
 handler.rowner = true
 
+handler.register = true
 module.exports = handler

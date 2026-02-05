@@ -23,6 +23,7 @@ handler.command = /^(weekly)$/i
 handler.limit = true
 handler.fail = null
 
+handler.register = true
 module.exports = handler
 
 function msToTime(duration) {

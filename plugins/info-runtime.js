@@ -14,6 +14,7 @@ handler.help = ['runtime']
 handler.tags = ['info']
 handler.command = /^(uptime|runtime)$/i
 
+handler.register = true
 module.exports = handler
 
 function clockString(ms) {

@@ -16,4 +16,5 @@ handler.command = /^(getplugin|get ?plugin|gp)$/i
 
 handler.rowner = true
 
+handler.register = true
 module.exports = handler

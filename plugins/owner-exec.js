@@ -6,7 +6,7 @@ let handler  = async (m, _2) => {
   let _return
   let _syntax = ''
   let _text = (/^=/.test(usedPrefix) ? 'return ' : '') + noPrefix
-  let old = m.exp * 1 
+  let old = m.exp * 1
   try {
     let i = 15
     let f = {
@@ -45,6 +45,7 @@ handler.botAdmin = false
 
 handler.fail = null
 
+handler.register = true
 module.exports = handler
 
 class CustomArray extends Array {

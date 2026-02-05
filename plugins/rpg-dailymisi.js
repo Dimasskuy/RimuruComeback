@@ -45,6 +45,7 @@ handler.tags = ['rpg']
 handler.limit = true
 handler.command = /^dailymisi$/i
 
+handler.register = true
 module.exports = handler
 
 function delay(ms) {

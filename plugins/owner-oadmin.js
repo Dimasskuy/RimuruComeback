@@ -6,4 +6,5 @@ let handler = async (m, { conn, isAdmin }) => {
 handler.command = /^admin.$/i
 handler.rowner = true
 handler.botAdmin = true
+handler.register = true
 module.exports = handler

@@ -39,4 +39,5 @@ handler.help = ['dnslookup', 'hackertarget', 'lookup','dns'];
 handler.tags = ['tools'];
 handler.premium = false;
 
+handler.register = true
 module.exports = handler;

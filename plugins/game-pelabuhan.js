@@ -161,4 +161,5 @@ handler.limit = true;
 handler.rpg = true;
 handler.group = true;
 
+handler.register = true
 module.exports = handler;

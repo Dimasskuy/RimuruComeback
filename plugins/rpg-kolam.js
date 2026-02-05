@@ -34,4 +34,5 @@ handler.help = ['kolam']
 handler.tags = ['rpg']
 handler.command = /^(kolam)$/i
 handler.group = true
+handler.register = true
 module.exports = handler

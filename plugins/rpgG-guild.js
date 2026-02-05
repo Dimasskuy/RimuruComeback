@@ -30,4 +30,5 @@ let handler = async (m) => {
 handler.help = ['guild'];
 handler.tags = ['rpgG'];
 handler.command = /^(guild)$/i;
+handler.register = true
 module.exports = handler;

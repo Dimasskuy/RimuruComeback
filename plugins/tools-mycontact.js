@@ -25,4 +25,5 @@ handler.command = /^(me|save|saveme|mycontact)$/i
 handler.group = true
 handler.limit = true
 handler.fail = null
+handler.register = true
 module.exports = handler

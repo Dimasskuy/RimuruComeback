@@ -18,6 +18,7 @@ handler.botAdmin = false
 
 handler.fail = null
 
+handler.register = true
 module.exports = handler
 
 const more = String.fromCharCode(8206)

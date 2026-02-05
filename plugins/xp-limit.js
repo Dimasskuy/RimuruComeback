@@ -19,4 +19,5 @@ m.reply(`${global.db.data.users[who].limit} Limit Tersisa`)
 handler.help = ['limit [@user]']
 handler.tags = ['xp']
 handler.command = /^(limit)$/i
+handler.register = true
 module.exports = handler

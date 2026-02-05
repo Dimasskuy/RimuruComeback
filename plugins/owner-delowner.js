@@ -16,4 +16,5 @@ handler.help = ['delowner [@user]']
 handler.tags = ['owner']
 handler.command = /^(del|hapus|-)owner$/i
 handler.owner = true
+handler.register = true
 module.exports = handler

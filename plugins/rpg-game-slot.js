@@ -68,6 +68,7 @@ handler.tags = ['game']
 handler.command = ['slot']
 handler.group = true
 
+handler.register = true
 module.exports = handler
 
 function msToTime(duration) {

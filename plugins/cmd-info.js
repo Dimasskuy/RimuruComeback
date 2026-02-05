@@ -18,6 +18,7 @@ ${sticker.mentionedJid.map((v, i) => `No. *${i + 1}*:\n*Mention Name:* ${conn.ge
 }, {
     help: ['cmd'].map(v => 'info' + v + ' <text>'),
     tags: ['database'],
+    register: true,
     command: ['infocmd']
 })
 

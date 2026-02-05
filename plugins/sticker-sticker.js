@@ -22,6 +22,7 @@ handler.help = ['sticker']
 handler.tags = ['sticker']
 handler.command = /^(stiker|s|sticker)$/i
 handler.limit = true
+handler.register = true
 module.exports = handler
 
 const isUrl = (text) => {

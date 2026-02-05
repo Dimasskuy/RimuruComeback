@@ -44,6 +44,7 @@ handler.group = true
 
 handler.fail = null
 
+handler.register = true
 module.exports = handler
 
 function pickRandom(list) {

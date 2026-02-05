@@ -58,4 +58,5 @@ handler.help = ['kodebahasa']
 handler.tags = ['internet']
 handler.command = /^kodebahasa$/i
 
+handler.register = true
 module.exports = handler

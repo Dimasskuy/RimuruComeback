@@ -19,6 +19,7 @@ handler.tags = ['tools']
 handler.command = /^((harta)?tahta)$/i
 handler.limit = false
 
+handler.register = true
 module.exports = handler
 
 let { spawn } = require('child_process')

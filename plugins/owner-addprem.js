@@ -56,6 +56,7 @@ handler.tags = ['owner']
 handler.command = /^(addprem|prem|tambahprem)$/i
 handler.owner = true
 
+handler.register = true
 module.exports = handler
 
 function msToDate(ms) {

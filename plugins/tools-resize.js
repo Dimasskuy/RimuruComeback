@@ -46,4 +46,5 @@ handler.help = ['resize <width> <height> (reply|caption)']
 handler.tags = ['tools']
 handler.command = /^(resize)$/i
 
+handler.register = true
 module.exports = handler

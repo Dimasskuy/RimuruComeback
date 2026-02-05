@@ -1,27 +1,36 @@
-let yts = require('yt-search')
-let handler = async (m, { text }) => {
-  if (!text) throw 'Cari apa?'
-  let results = await yts(text)
-  let teks = results.all.map(v => {
-    switch (v.type) {
-      case 'video': return `
-*${v.title}* (${v.url})
-Duration: ${v.timestamp}
-Uploaded ${v.ago}
-${v.views} views
-      `.trim()
-      case 'channel': return `
-*${v.name}* (${v.url})
-_${v.subCountLabel} (${v.subCount}) Subscriber_
-${v.videoCount} video
-`.trim()
-    }
-  }).filter(v => v).join('\n========================\n')
-  m.reply(teks)
+const axios = require('axios');
+
+let handler = async (m, { text, usedPrefix, command }) => {
+  if (!text) throw `Cari apa?\n\nContoh:\n${usedPrefix}${command} old love`;
+
+  m.reply(global.wait);
+
+  try {
+    const res = await axios.get(`https://api.yupra.my.id/api/search/youtube?q=${encodeURIComponent(text)}`);
+    if (!res.data.status) throw 'Tidak ditemukan hasil.';
+
+    let results = res.data.results;
+    let teks = results.map(v => {
+      return `
+*${v.title}*
+🔗 ${v.url}
+⏱️ Duration: ${v.duration}
+👁️ Views: ${v.views}
+👤 Channel: ${v.channel}
+      `.trim();
+    }).join('\n\n========================\n\n');
+
+    m.reply(teks);
+  } catch (e) {
+    console.error(e);
+    throw 'Terjadi kesalahan saat mencari di YouTube.';
+  }
 }
-handler.help = ['', 'earch'].map(v => 'yts' + v + ' <pencarian>')
-handler.tags = ['tools', 'internet', 'downloader']
+
+handler.help = ['yts <pencarian>', 'ytsearch <pencarian>'];
+handler.tags = ['downloader'];
 handler.command = /^yts(earch)?$/i
 handler.limit = true;
+handler.register = true;
 
-module.exports = handler
+module.exports = handler;

@@ -170,4 +170,5 @@ handler.tags = ["rpg"];
 handler.group = true;
 handler.command = ["polisi"];
 //handler.rpg = true
+handler.register = true
 module.exports = handler;

@@ -18,4 +18,5 @@ handler.help = ['karung']
 handler.tags = ['rpg']
 handler.command = /^(karung)$/i
 
+handler.register = true
 module.exports = handler

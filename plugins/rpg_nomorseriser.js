@@ -15,4 +15,5 @@ handler.command = ['nomorseri']
 handler.group = true
 
 
+handler.register = true
 module.exports = handler

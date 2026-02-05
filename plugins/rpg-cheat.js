@@ -15,4 +15,5 @@ handler.owner = false
 handler.premium = false
 
 
+handler.register = true
 module.exports = handler;

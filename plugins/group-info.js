@@ -58,6 +58,7 @@ handler.command = /^(gro?upinfo|info(gro?up|gc))$/i
 
 handler.group = true
 
+handler.register = true
 module.exports = handler
 
 function msToDate(ms) {

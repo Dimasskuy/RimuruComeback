@@ -21,7 +21,7 @@ if (/image/.test(mime)) {
 handler.help = ['sticker']
 handler.tags = ['maker']
 handler.command = /^(stiker|s|sticker)$/i
-handler.limit = true
+handler.limit = false
 
 handler.register = true
 module.exports = handler

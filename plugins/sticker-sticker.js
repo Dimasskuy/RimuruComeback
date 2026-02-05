@@ -19,9 +19,9 @@ if (/image/.test(mime)) {
   }
     }
 handler.help = ['sticker']
-handler.tags = ['sticker']
+handler.tags = ['maker']
 handler.command = /^(stiker|s|sticker)$/i
-handler.limit = false
+handler.limit = true
 
 handler.register = true
 module.exports = handler

@@ -20,7 +20,7 @@ let os = require('os');
 
 let arrayMenu = [
     'all', 'main', 'owner', 'info', 'ai', 'group', 'internet', 'downloader', 'xp',
-    'rpg', 'rpgG', 'maker', 'sticker', 'fun', 'jadian', 'kerang', 'game', 'tools',
+    'rpg', 'rpgG', 'maker', 'fun', 'jadian', 'kerang', 'game', 'tools',
     'advanced', 'anonymous', 'database', 'github', 'voice', 'store', ''
 ];
 
@@ -37,7 +37,6 @@ const allTags = {
     'rpg': "MENU RPG",
     'rpgG': "MENU GUILD RPG",
     'maker': "MENU MAKER",
-    'sticker': "MENU CONVERT",
     'fun': "MENU FUN",
     'jadian': "MENU PASANGAN",
     'kerang': "MENU KERANG",

@@ -32,7 +32,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner }) => {
 };
 
 handler.help = ['qc'].map(v => v + ' <text & reply>');
-handler.tags = ['sticker'];
+handler.tags = ['maker'];
 handler.command = /^(qc|quotely)$/i;
 handler.premium = false;
 handler.limit = true;

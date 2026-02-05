@@ -51,7 +51,8 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
 handler.help = ['akunyt [nomor]'];
 handler.tags = ['rpg'];
 handler.command = /^(akunyt)$/i;
-handler.register = true;
 handler.group = true;
 
+
+handler.register = true
 module.exports = handler;

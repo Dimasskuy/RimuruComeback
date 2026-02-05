@@ -24,5 +24,6 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['guilddemote <@user>'];
 handler.tags = ['rpgG'];
 handler.command = /^(guilddemote)$/i;
+
 handler.register = true
 module.exports = handler;

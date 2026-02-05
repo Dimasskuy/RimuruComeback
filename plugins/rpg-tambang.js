@@ -141,7 +141,8 @@ handler.help = ['tambang'];
 handler.tags = ['rpg'];
 handler.command = /^(tambang)$/i;
 handler.group = true;
-handler.register = true;
 //handler.rpg = true;
 
+
+handler.register = true
 module.exports = handler;

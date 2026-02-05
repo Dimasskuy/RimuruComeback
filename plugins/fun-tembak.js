@@ -45,5 +45,6 @@ handler.tags = ['fun']
 handler.command = /^(tembak)$/i
 handler.group = true
 
+
 handler.register = true
 module.exports = handler

@@ -28,6 +28,15 @@ global.prefix = new RegExp('^[' + (opts['prefix'] || '‎xzXZ/i!#$%+£¢€¥^°
 
 const sessionPath = opts._[0] || 'sessions';
 
+// Ensure necessary directories exist
+const dirs = ['tmp', sessionPath];
+for (const dir of dirs) {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+        console.log(chalk.green(`📁 Created directory: ${dir}`));
+    }
+}
+
 global.db = new Low(new JSONFile('database.json'));
 global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {

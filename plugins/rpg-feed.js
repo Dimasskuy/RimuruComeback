@@ -167,8 +167,9 @@ handler.help = ['feed']
 handler.tags = ['rpg']
 handler.command = /^(feed(ing)?)$/i
 
-handler.register = true
 handler.rpg = true
+
+handler.register = true
 module.exports = handler
 
 function clockString(ms) {

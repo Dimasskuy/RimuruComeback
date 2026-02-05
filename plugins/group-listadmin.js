@@ -12,6 +12,7 @@ handler.tags = ['group']
 handler.command = /^(adminlist|listadmin)$/i
 handler.group = true
 handler.register = false
+
 handler.register = true
 module.exports = handler
 

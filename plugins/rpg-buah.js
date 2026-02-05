@@ -15,5 +15,6 @@ handler.help = ['buah']
 handler.tags = ['rpg']
 handler.command = /^(buah|listbuah)$/i
 
+
 handler.register = true
 module.exports = handler

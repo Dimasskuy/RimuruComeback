@@ -31,6 +31,8 @@ handler.customPrefix = /^(menu|list)$/i;
 handler.command = new RegExp;
 handler.group = true;
 
+
+handler.register = true
 module.exports = handler;
 
 function ucapan() {

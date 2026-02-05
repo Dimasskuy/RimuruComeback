@@ -32,5 +32,6 @@ handler.help = ['checkjail', 'cj', 'statuspenjara', 'jailstatus']
 handler.tags = ['rpg']
 handler.command = /^(checkjail|cj|statuspenjara|jailstatus)$/i
 
+
 handler.register = true
 module.exports = handler

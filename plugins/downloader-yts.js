@@ -31,6 +31,7 @@ handler.help = ['yts <pencarian>', 'ytsearch <pencarian>'];
 handler.tags = ['downloader'];
 handler.command = /^yts(earch)?$/i
 handler.limit = true;
-handler.register = true;
 
+
+handler.register = true
 module.exports = handler;

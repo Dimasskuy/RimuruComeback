@@ -36,6 +36,7 @@ handler.help = ['cekprem', 'cekpremium', 'premium']
 handler.tags = ['info']
 handler.command = /^(cekprem(ium)?|premium)$/i
 
+
 handler.register = true
 module.exports = handler
 

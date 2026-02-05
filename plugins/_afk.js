@@ -25,6 +25,8 @@ Selama ${clockString(new Date - afkTime)}
   return true
 }
 
+
+handler.register = true
 module.exports = handler
 
 function clockString(ms) {

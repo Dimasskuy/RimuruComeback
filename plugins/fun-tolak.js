@@ -27,5 +27,6 @@ handler.help = ['tolak @tag']
 handler.tags = ['fun']
 handler.command = /^(tolak)$/i
 handler.group = true
+
 handler.register = true
 module.exports = handler

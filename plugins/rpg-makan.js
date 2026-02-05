@@ -248,6 +248,7 @@ gunakan spasi
 
 handler.help = ['eat', 'makan']
 handler.tags = ['rpg']
-handler.register = true
 handler.command = /^(eat|makan)$/i
+
+handler.register = true
 module.exports = handler

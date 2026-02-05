@@ -54,10 +54,11 @@ handler.help = ['battlepet']
 handler.tags = ['rpg']
 handler.command = /^(battlepet)$/i
 
-handler.register = true
 handler.group = true
 handler.rpg = true
 
+
+handler.register = true
 module.exports = handler
 
 function getRandom(min, max) {

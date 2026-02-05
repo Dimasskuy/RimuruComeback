@@ -25,9 +25,10 @@ let handler = async (m, { conn, command }) => {
 handler.help = ['korupsi']
 handler.tags = ['rpg']
 handler.command = /^(bansos|korupsi)$/i
-handler.register = true
 handler.group = true
 handler.rpg = true
+
+handler.register = true
 module.exports = handler
 
 function pickRandom(list) {

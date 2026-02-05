@@ -76,8 +76,9 @@ Ngasih tau, kalo qalqalah itu dipantulkan
 handler.help = ['mengaji', 'ngaji']
 handler.tags = ['rpg']
 handler.command = /^(mengajikeliling|mengaji|ngaji|ustad|ustadz|ustaz)$/i
-handler.register = true
 
+
+handler.register = true
 module.exports = handler 
 
 function clockString(ms) {

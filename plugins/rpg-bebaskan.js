@@ -19,5 +19,6 @@ handler.command = /^bebaskan$/i
 handler.owner = false
 handler.admin = false
 
+
 handler.register = true
 module.exports = handler

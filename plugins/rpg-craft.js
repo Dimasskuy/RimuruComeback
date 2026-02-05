@@ -177,7 +177,8 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
 handler.help = ['craft', 'blacksmith'];
 handler.tags = ['rpg'];
 handler.command = /^(craft|crafting|chant|blacksmith)/i;
-handler.register = true;
 handler.group = true;
 
+
+handler.register = true
 module.exports = handler;

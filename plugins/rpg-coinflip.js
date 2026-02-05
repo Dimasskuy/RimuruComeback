@@ -57,6 +57,7 @@ ${new Intl.NumberFormat('en-US').format(exp)} XP
 handler.help = ["coinflip"];
 handler.tags = ["rpg"];
 handler.command = /^(coinflip|putarkoin)$/i;
+
 handler.register = true
 module.exports = handler;
 

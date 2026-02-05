@@ -114,6 +114,7 @@ handler.before = async function (m, { conn, text, command }) {
 	await kocok(m, ut, conn) 
 	}
 
+
 handler.register = true
 module.exports = handler;
 

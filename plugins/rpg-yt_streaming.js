@@ -111,9 +111,10 @@ function msToTime(duration) {
 handler.help = ['ytlive'];
 handler.tags = ['rpg'];
 handler.command = /^(ytlive|ytstreaming)/i;
-handler.register = true;
 handler.rpg = true;
 handler.group = true;
 
 // Ekspor handler perintah RPG
+
+handler.register = true
 module.exports = handler;

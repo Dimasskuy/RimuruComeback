@@ -14,5 +14,6 @@ handler.help = ['npmsearch']
 handler.tags = ['tools']
 handler.command = /^npm(js|search)?$/i
 //maapin hyzer
+
 handler.register = true
 module.exports = handler

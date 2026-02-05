@@ -18,5 +18,6 @@ let handler = async (m, { args, usedPrefix, command }) => {
 handler.help = ['tr <leng> <text>']
 handler.tags = ['tools']
 handler.command = ['translate', 'tl', 'trid', 'tr']
+
 handler.register = true
 module.exports = handler

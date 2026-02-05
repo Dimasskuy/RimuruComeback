@@ -31,5 +31,6 @@ handler.command = /^((broadcastgc|bcgc)bot)$/i
 
 handler.owner = true
 
+
 handler.register = true
 module.exports = handler

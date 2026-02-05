@@ -48,5 +48,6 @@ handler.admin = false
 handler.owner = true
 handler.group = false
 handler.botAdmin = false
+
 handler.register = true
 module.exports = handler

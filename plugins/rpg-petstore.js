@@ -137,6 +137,7 @@ ${usedPrefix}adopt kucing`.trim()
 handler.help = ['petshop']
 handler.tags = ['rpg']
 handler.command = /^(pet(shop|store)?|adopt)/i
-handler.register = true
 handler.rpg = true
+
+handler.register = true
 module.exports = handler

@@ -9,5 +9,6 @@ handler.tags = ['owner']
 handler.command = ['mute']
 handler.owner = true
 
+
 handler.register = true
 module.exports = handler

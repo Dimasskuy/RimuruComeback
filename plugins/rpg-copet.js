@@ -99,6 +99,7 @@ handler.help = ['copet']
 handler.tags = ['rpg']
 handler.command = /^(copet)$/i
 handler.group = true
+
 handler.register = true
 module.exports = handler
 

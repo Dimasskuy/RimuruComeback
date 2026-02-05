@@ -25,7 +25,8 @@ let handler = async (m, { args }) => {
 handler.help = ['moneytopoin *<amount>*']
 handler.tags = ['rpg']
 handler.command = /^moneytopoin$/i
-handler.register = true
 handler.limit = true
 
+
+handler.register = true
 module.exports = handler

@@ -73,6 +73,7 @@ handler.help = ['mancing'];
 handler.tags = ['rpg'];
 handler.command = /^(mancing|memancing)$/i;
 
+
 handler.register = true
 module.exports = handler;
 

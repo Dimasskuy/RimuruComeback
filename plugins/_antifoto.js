@@ -12,3 +12,5 @@ exports.before = async function(m, { isAdmin, isBotAdmin }) {
   }
   return true
 }
+
+exports.register = true

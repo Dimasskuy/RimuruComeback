@@ -86,7 +86,7 @@ module.exports = {
 
             if (opts['queque'] && m.text) {
                 this.msgqueque.push(m.id || m.key.id);
-                await delay(this.msgqueque.length * 1000);
+                await delay(Math.min(this.msgqueque.length, 10) * 500);
             }
 
             // Plugin execution
@@ -241,6 +241,10 @@ module.exports = {
         } catch (e) {
             console.error(e);
         } finally {
+            if (opts['queque'] && m.text) {
+                const index = this.msgqueque.indexOf(m.id || m.key.id);
+                if (index !== -1) this.msgqueque.splice(index, 1);
+            }
             let user, stats = global.db.data.stats;
             if (m) {
                 if (m.sender && (user = global.db.data.users[m.sender])) {

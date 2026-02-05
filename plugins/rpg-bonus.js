@@ -10,9 +10,10 @@ let handler = async (m, { conn, usedPrefix, text }) => {
 handler.help = ['bonus']
 handler.tags = ['rpg']
 handler.command = /^(bonus)/i
-handler.register = true
 handler.premium = false
 handler.rpg = false
+
+handler.register = true
 module.exports = handler
 
 function msToTime(duration) {

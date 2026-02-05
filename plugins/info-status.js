@@ -52,8 +52,9 @@ Uptime : *${clockString(os.uptime() * 1000)}*
 handler.help = ['', 'bot'].map(v => 'status' + v);
 handler.tags = ['info'];
 handler.command = /^(bot)?stat(us)?(bot)?$/i;
-handler.register = true;
 
+
+handler.register = true
 module.exports = handler;
 
 function formatBytes(bytes, decimals = 2) {

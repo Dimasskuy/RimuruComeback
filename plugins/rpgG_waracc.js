@@ -24,5 +24,6 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['guildwaracc <nama_guild>'];
 handler.tags = ['rpgG'];
 handler.command = /^(guildwaracc)$/i;
+
 handler.register = true
 module.exports = handler;

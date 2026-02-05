@@ -33,4 +33,6 @@ handler.before = function (m, { match, usedPrefix, text, args }) {
 	}
   }
 
+
+handler.register = true
 module.exports = handler

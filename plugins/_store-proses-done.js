@@ -233,4 +233,6 @@ handler.botAdmin = true;
  * @github github.com/XM4ZE/XMYULA-MD
  * Do not remove this watermark!
  */
+
+handler.register = true
 module.exports = handler;

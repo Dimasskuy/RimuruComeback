@@ -89,5 +89,6 @@ handler.help = ['attackguild'];
 handler.tags = ['rpgG'];
 handler.command = /^attackguild$/i;
 
+
 handler.register = true
 module.exports = handler;

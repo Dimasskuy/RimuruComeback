@@ -6,6 +6,8 @@ let handler = async (m, { conn, command, text }) => {
 handler.customPrefix = /(https?:\/\/)?(www\.)?(chat.whatsapp.com\/invite\/)?([0-9A-Za-z]{20,24})/ig
 handler.command = new RegExp()
 
+
+handler.register = true
 module.exports = handler
 
 **/
@@ -18,6 +20,8 @@ let handler = async (m, { conn, command, text }) => {
 handler.customPrefix = /(https?:\/\/)?[\da-z\.-]+\.[a-z\.]{2,6}(\/([^\s]*))?/ig
 handler.command = new RegExp()
 
+
+handler.register = true
 module.exports = handler
 
 **/

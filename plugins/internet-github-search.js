@@ -25,6 +25,7 @@ handler.tags = ['tools']
 
 handler.command = /^g(ithub|h)search$/i
 
+
 handler.register = true
 module.exports = handler
 

@@ -6,6 +6,7 @@ let handler = async (m) => {
 handler.help = ['cekpoin']
 handler.tags = ['rpg']
 handler.command = /^cekpoin$/i
-handler.register = true
 
+
+handler.register = true
 module.exports = handler

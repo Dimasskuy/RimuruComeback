@@ -12,4 +12,6 @@ handler.command = /^dellist$/i;
 handler.admin = true;
 handler.group = true;
 
+
+handler.register = true
 module.exports = handler;

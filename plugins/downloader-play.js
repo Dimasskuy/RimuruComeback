@@ -55,6 +55,7 @@ handler.help = ['play <judul>'];
 handler.tags = ['downloader'];
 handler.command = /^play$/i;
 handler.limit = true;
-handler.register = true;
 
+
+handler.register = true
 module.exports = handler;

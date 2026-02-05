@@ -36,5 +36,6 @@ Dibuat Pada: ${guild.createdAt}`;
 handler.help = ['guildinfoacc <@user>'];
 handler.tags = ['rpgG'];
 handler.command = /^(guildinfoacc)$/i;
+
 handler.register = true
 module.exports = handler;

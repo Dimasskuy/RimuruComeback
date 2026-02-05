@@ -26,4 +26,6 @@ handler.help = ['lihatcatatan <title>']
 handler.tags = ['internet']
 handler.command = /^lihatcatatan$/i
 
+
+handler.register = true
 module.exports = handler

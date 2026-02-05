@@ -141,3 +141,5 @@ exports.before = async function (m) {
         }
     }, SPAM_RESET_TIME);
 };
+
+exports.register = true

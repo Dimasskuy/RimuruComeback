@@ -67,7 +67,8 @@ let handler = async (m, { conn, usedPrefix, text, command }) => {
 handler.help = ['selectskill <type>']
 handler.tags = ['rpg']
 handler.command = /^(selectskill)$/i
-handler.register = true
 handler.group = true
 
+
+handler.register = true
 module.exports = handler

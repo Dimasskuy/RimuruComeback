@@ -1,11 +1,11 @@
+let lastUpdate = 0
 module.exports = {
   before: async function all(m) {
-    if (global.autobio) {
-      setInterval(async () => {
-        let uptime = process.uptime() * 1000;
-        let bio = `🤖 Aktif Selama: ${clockString(uptime)} | 💌 by: ${wm}`;
-        await this.updateProfileStatus(bio).catch(_ => _);
-      }, 60000);
+    if (global.autobio && Date.now() - lastUpdate > 60000) {
+      lastUpdate = Date.now()
+      let uptime = process.uptime() * 1000;
+      let bio = `🤖 Aktif Selama: ${clockString(uptime)} | 💌 by: ${global.wm}`;
+      await this.updateProfileStatus(bio).catch(_ => _);
     }
   }
 }

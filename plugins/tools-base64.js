@@ -11,5 +11,6 @@ handler.help = ['encrypt', 'decrypt']
 handler.tags = ['tools']
 handler.command = /^(encrypt|decrypt)$/i
 
+
 handler.register = true
 module.exports = handler

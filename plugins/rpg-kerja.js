@@ -154,9 +154,10 @@ handler.help = ['kerja']
 handler.tags = ['rpg']
 handler.command = /^kerja$/i
 
-handler.register = true
 handler.group = true
 
+
+handler.register = true
 module.exports = handler
 
 function pickRandom(list) {

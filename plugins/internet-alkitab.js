@@ -20,5 +20,6 @@ handler.help = ['alkitab'].map(v => v + ' <pencarian>')
 handler.tags = ['internet']
 handler.command = /^(alkitab)$/i
 
+
 handler.register = true
 module.exports = handler

@@ -40,5 +40,6 @@ handler.tags = ['group'];
 handler.command = /^(totalchat|totalpesan)$/i;
 handler.group = true;
 
+
 handler.register = true
 module.exports = handler;

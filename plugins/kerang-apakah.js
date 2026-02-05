@@ -8,11 +8,12 @@ let handler = async (m, { conn, text }) => {
 }
 handler.help = ['apakah <teks>?']
 handler.tags = ['kerang']
-handler.customPrefix = /(\?$)/
+handler.customPrefix = /(\?|)$/
 handler.command = /^apakah$/i
 handler.owner = false
 
 handler.fail = null
+
 
 handler.register = true
 module.exports = handler

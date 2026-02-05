@@ -81,9 +81,10 @@ let handler = async (m, { conn }) => {
 handler.help = ['hitman']
 handler.tags = ['rpg']
 handler.command = /^(bunuh|hitman)$/i
-handler.register = true
 handler.group = true
 handler.level = 10
+
+handler.register = true
 module.exports = handler
 
     function clockString(ms) {

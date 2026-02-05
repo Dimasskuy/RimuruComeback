@@ -21,6 +21,7 @@ handler.tags = ['rpg']
 handler.command = /^(heal|use)$/i
 handler.limit = true
 handler.rpg = true
+
 handler.register = true
 module.exports = handler
 

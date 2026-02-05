@@ -34,4 +34,6 @@ handler.before = async function (m, { conn, isBotAdmin, isAdmin }) {
   return true
 }
 
+
+handler.register = true
 module.exports = handler

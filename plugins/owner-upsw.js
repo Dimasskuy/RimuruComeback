@@ -88,6 +88,7 @@ handler.rowner = true;
 handler.group = true;
 handler.command = new RegExp(`^(${commandList.join("|")})$`, "i");
 
+
 handler.register = true
 module.exports = handler;
 

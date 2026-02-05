@@ -40,6 +40,7 @@ handler.help = ['rollgiveaway']
 handler.tags = ['group']
 handler.command = /^(rolling|rollgiveaway|rollinggiveaway)$/i
 handler.admin = true
+
 handler.register = true
 module.exports = handler
 

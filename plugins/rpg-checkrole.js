@@ -68,6 +68,7 @@ let handler = async (m, { conn }) => {
 handler.help = ['role']
 handler.tags = ['rpg']
 handler.command = /^(role|levelrole|checkrole)$/i
+
 handler.register = true
 module.exports = handler
 

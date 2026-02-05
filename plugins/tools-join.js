@@ -13,5 +13,6 @@ handler.command = /^join$/i
 
 handler.premium = true
 
+
 handler.register = true
 module.exports = handler

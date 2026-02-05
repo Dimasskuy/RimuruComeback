@@ -449,10 +449,11 @@ Anda telah membuka *Legendary crate* dan mendapatkan:${lm3 > 0 ? `\nmoney: ${lm3
 handler.help = ['open <crate>']
 handler.tags = ['rpg']
 handler.command = /^(open|buka)$/i
-handler.register = true
 
 handler.fail = null
 
+
+handler.register = true
 module.exports = handler
 
 function pickRandom(list) {

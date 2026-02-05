@@ -23,6 +23,7 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
 handler.help = ['penjara']
 handler.tags = ['rpg']
 handler.command = /^penjara$/i
-handler.register = true
 
+
+handler.register = true
 module.exports = handler

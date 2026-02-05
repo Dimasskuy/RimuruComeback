@@ -48,5 +48,6 @@ handler.help = ["bomb"];
 handler.tags = ["game"];
 handler.command = /^(bomb)$/i;
 
+
 handler.register = true
 module.exports = handler;

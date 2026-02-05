@@ -17,5 +17,6 @@ let handler = async (m, { conn }) => {
 handler.help = ['guildleave'];
 handler.tags = ['rpgG'];
 handler.command = /^(guildleave)$/i;
+
 handler.register = true
 module.exports = handler;

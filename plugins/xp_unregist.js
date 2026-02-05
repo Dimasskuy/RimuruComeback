@@ -13,6 +13,7 @@ handler.help = ['unreg <Nomor Seri>']
 handler.tags = ['xp']
 
 handler.command = ['unreg'] 
-handler.register = true
 
+
+handler.register = true
 module.exports = handler

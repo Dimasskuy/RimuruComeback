@@ -10,8 +10,9 @@ let handler = async (m, { conn, usedPrefix, text }) => {
 handler.help = ['gajian']
 handler.tags = ['rpg']
 handler.command = /^(gaji|gajian)/i
-handler.register = true
 handler.rpg = true
+
+handler.register = true
 module.exports = handler
 
 function msToTime(duration) {

@@ -30,7 +30,8 @@ let handler = async (m, { args }) => {
 handler.help = ['pointomoney']
 handler.tags = ['rpg']
 handler.command = /^pointomoney$/i
-handler.register = true
 handler.limit = true
 
+
+handler.register = true
 module.exports = handler

@@ -23,5 +23,6 @@ handler.help = ['sawer'];
 handler.tags = ['rpg'];
 handler.command = /^(sawer|nyawer)$/i;
 handler.group = true;
+
 handler.register = true
 module.exports = handler;

@@ -23,5 +23,6 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['guildinvite <@user>'];
 handler.tags = ['rpgG'];
 handler.command = /^(guildinvite)$/i;
+
 handler.register = true
 module.exports = handler;

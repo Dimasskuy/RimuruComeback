@@ -29,6 +29,7 @@ let handler = async (m, {
 handler.help = ['buystrenght <jumlah>'];
 handler.tags = ['rpg'];
 handler.command = /^buystrenght$/i;
-handler.register = true;
 
+
+handler.register = true
 module.exports = handler;

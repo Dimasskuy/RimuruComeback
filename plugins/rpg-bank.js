@@ -44,5 +44,6 @@ handler.help = ['bank']
 handler.tags = ['rpg']
 handler.command = /^bank$/
 
+
 handler.register = true
 module.exports = handler

@@ -43,7 +43,8 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
 handler.help = ['createakunyt', 'deleteakun']; // Add 'deleteakun' to help commands
 handler.tags = ['rpg'];
 handler.command = /^(createakunyt|deleteakun)$/i; // Modify to include deleteakun command
-handler.register = true;
 handler.group = true;
 
+
+handler.register = true
 module.exports = handler;

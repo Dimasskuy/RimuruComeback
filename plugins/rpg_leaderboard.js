@@ -63,7 +63,8 @@ let handler = async (m, { conn, args, participants }) => {
   handler.fail = null
   handler.exp = 0
   
-  handler.register = true
+
+handler.register = true
 module.exports = handler
   
   function sort(property, ascending = true) {

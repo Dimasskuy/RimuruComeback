@@ -23,5 +23,6 @@ const handler = async (m, { text, usedPrefix, command }) => {
 handler.command = ['whois2'];
 handler.tags = ['internet'];
 handler.premium = false;
+
 handler.register = true
 module.exports = handler;

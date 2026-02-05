@@ -29,5 +29,6 @@ m.reply(list)
 }
 handler.help = handler.command = ['kulkas']
 handler.tags = ['rpg']
+
 handler.register = true
 module.exports = handler

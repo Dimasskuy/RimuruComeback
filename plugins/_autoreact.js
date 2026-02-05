@@ -12,6 +12,8 @@ handler.command = new RegExp
   
 handler.mods = false
 
+
+handler.register = true
 module.exports = handler
 
   function pickRandom(list) {

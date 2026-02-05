@@ -20,9 +20,8 @@ let os = require('os');
 
 let arrayMenu = [
     'all', 'main', 'owner', 'info', 'ai', 'group', 'internet', 'downloader', 'xp',
-    'rpg', 'rpgG', 'maker', 'sticker', 'fun', 'jadian', 'kerang', 'game', 'genshin',
-    'anime', 'islami', 'Pengubah Suara', 'quotes', 'stalk', 'shortlink', 'tools',
-    'advanced', 'anonymous', 'database', 'github', 'image', 'news', 'voice', 'store', ''
+    'rpg', 'rpgG', 'maker', 'sticker', 'fun', 'jadian', 'kerang', 'game', 'tools',
+    'advanced', 'anonymous', 'database', 'github', 'voice', 'store', ''
 ];
 
 const allTags = {
@@ -43,20 +42,11 @@ const allTags = {
     'jadian': "MENU PASANGAN",
     'kerang': "MENU KERANG",
     'game': "MENU GAME",
-    'genshin': "MENU GENSHIN",
-    'anime': "MENU ANIME",
-    'islami': "MENU ISLAMI",
-    'suara': "PENGUBAH SUARA",
-    'quotes': "MENU QUOTES",
-    'stalk': "MENU STALK",
-    'shortlink': "SHORT LINK",
     'tools': "MENU TOOLS",
     'advanced': "ADVANCED",
     'anonymous': "ANONYMOUS CHAT",
     'database': 'MENU DATABASE',
     'github': 'MENU GITHUB',
-    'image': 'MENU IMAGE',
-    'news': 'MENU NEWS',
     'voice': 'PENGUBAH SUARA',
     'store': 'MENU STORE',
     '': "NO CATEGORY"
@@ -305,6 +295,8 @@ handler.tags = ['main'];
 handler.command = /^(menu|help)$/i;
 handler.exp = 3;
 
+
+handler.register = true
 module.exports = handler;
 
 function clockString(ms) {

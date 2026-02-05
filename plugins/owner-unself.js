@@ -13,5 +13,6 @@ handler.command = /^unself$/i;
 // Hanya bisa diakses oleh owner
 handler.rowner = true;
 
+
 handler.register = true
 module.exports = handler;

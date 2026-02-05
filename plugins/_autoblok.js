@@ -16,4 +16,6 @@ handler.before = async function (m) {
    }
 }
 
+
+handler.register = true
 module.exports = handler

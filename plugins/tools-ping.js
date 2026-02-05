@@ -148,8 +148,9 @@ ${_cpus
 handler.help = ['ping', 'speed'];
 handler.tags = ['info'];
 handler.command = /^(ping|speed|pong|ingfo)$/i;
-handler.register = true;
 
+
+handler.register = true
 module.exports = handler;
 
 function clockString(ms) {

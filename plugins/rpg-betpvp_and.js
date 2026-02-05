@@ -70,3 +70,4 @@ ${room.win !== 'draw' ? `Pemenangnya adalah @${room.win.split('@')[0]} Dan menda
     }
     return true;
 };
+exports.register = true

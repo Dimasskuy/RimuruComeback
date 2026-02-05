@@ -12,6 +12,7 @@ handler.command = /^(broadcast|bc)(group|grup|gc)$/i
 
 handler.owner = true
 
+
 handler.register = true
 module.exports = handler
 

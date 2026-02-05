@@ -27,5 +27,6 @@ handler.help = ['cekresolution *<foto>*', 'cekreso *<foto>*']
 handler.tags = ['tools']
 handler.command = /^(cekreso(lution)?)$/i
 
+
 handler.register = true
 module.exports = handler

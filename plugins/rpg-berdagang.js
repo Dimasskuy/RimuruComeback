@@ -47,9 +47,10 @@ let dapat = (Math.floor(Math.random() * 5000))
 handler.help = ['berdagang *@tag*']
 handler.tags = ['rpg']
 handler.command = /^berdagang$/
-handler.register = true
 handler.group = true
 
+
+handler.register = true
 module.exports = handler
 
 function pickRandom(list) {

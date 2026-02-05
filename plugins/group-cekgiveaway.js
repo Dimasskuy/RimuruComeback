@@ -29,5 +29,6 @@ handler.help = ['cekgiveaway']
 handler.tags = ['group']
 handler.command = /^cekgiveaway$/i
 handler.admin = true
+
 handler.register = true
 module.exports = handler

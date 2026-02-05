@@ -23,4 +23,6 @@ handler.help = ['buatcatatan <title|isi>']
 handler.tags = ['internet']
 handler.command = /^buatcatatan$/i
 
+
+handler.register = true
 module.exports = handler

@@ -46,5 +46,6 @@ handler.tags = ['rpgG'];
 handler.command = /^(delguild)$/i;
 handler.owner = false;
 
+
 handler.register = true
 module.exports = handler;

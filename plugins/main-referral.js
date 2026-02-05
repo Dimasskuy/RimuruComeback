@@ -60,6 +60,7 @@ handler.tags = ['main']
 
 handler.command = ['ref','referral']
 
-handler.register = true
 
+
+handler.register = true
 module.exports = handler

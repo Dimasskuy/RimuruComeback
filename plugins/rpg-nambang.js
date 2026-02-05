@@ -62,8 +62,9 @@ let handler = async (m, { conn }) => {
 handler.help = ['nambang']
 handler.tags = ['rpg']
 handler.command = /^(nambang)$/i
-handler.register = true
 //handler.rpg = true
+
+handler.register = true
 module.exports = handler
 
 function clockString(ms) {

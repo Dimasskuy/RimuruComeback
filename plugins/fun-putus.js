@@ -20,5 +20,6 @@ handler.help = ['putus']
 handler.tags = ['fun']
 handler.command = /^(putus)$/i
 handler.group = true
+
 handler.register = true
 module.exports = handler

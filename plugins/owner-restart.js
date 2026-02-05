@@ -13,5 +13,6 @@ handler.command = /^(srvrestart|restart)$/i
 
 handler.rowner = true
 
+
 handler.register = true
 module.exports = handler

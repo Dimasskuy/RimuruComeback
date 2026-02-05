@@ -1,10 +1,10 @@
 let handler = async (m, { conn }) => {
-    let __timers = (new Date - global.db.data.users[m.sender].lasttaxi)
+    let user = global.db.data.users[m.sender]
+    let __timers = (new Date - (user.lasttaxi || 0))
     let _timers = (3600000 - __timers)
-    let order = global.db.data.users[m.sender].taxi
+    let order = user.taxi || 0
     let timers = clockString(_timers)
     let name = conn.getName(m.sender)
-    let user = global.db.data.users[m.sender]
     let id = m.sender
     let kerja = 'taxi'
     conn.misi = conn.misi ? conn.misi : {}
@@ -98,9 +98,10 @@ let handler = async (m, { conn }) => {
 handler.help = ['taxi']
 handler.tags = ['rpg']
 handler.command = /^(taxi)$/i
-handler.register = true
 handler.group = true
 handler.rpg = true
+
+handler.register = true
 module.exports = handler;
 
 

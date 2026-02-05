@@ -17,5 +17,6 @@ handler.tags = ['group']
 handler.command = /^(avatar|ava)$/i
 handler.group = true
 handler.limit = true
+
 handler.register = true
 module.exports = handler

@@ -1,12 +1,12 @@
 let handler = async (m, { conn }) => {
-  let __timers = (new Date - global.db.data.users[m.sender].lastngojek)
+  let user = global.db.data.users[m.sender]
+  let __timers = (new Date - (user.lastngojek || 0))
   let _timers = (300000 - __timers)
-  let order = global.db.data.users[m.sender].ojek
+  let order = user.ojek || 0
   let timers = clockString(_timers) 
   let name = conn.getName(m.sender)
-  let user = global.db.data.users[m.sender]
   
-  if (new Date - global.db.data.users[m.sender].lastngojek > 300000) {
+  if (new Date - (user.lastngojek || 0) > 300000) {
       user.lastngojek = new Date * 1
 
       let randomaku1 = `${Math.floor(Math.random() * 10)}`
@@ -14,8 +14,6 @@ let handler = async (m, { conn }) => {
       let randomaku4 = `${Math.floor(Math.random() * 5)}`
       let randomaku3 = `${Math.floor(Math.random() * 10)}`
       let randomaku5 = `${Math.floor(Math.random() * 10)}`
-
-      .trim()
 
       let rbrb1 = (randomaku1 * 2)
       let rbrb2 = (randomaku2 * 10) 
@@ -63,8 +61,9 @@ let handler = async (m, { conn }) => {
 handler.help = ['ojek']
 handler.tags = ['rpg']
 handler.command = /^(ojek|ngojek|gojek)$/i
-handler.register = true
 //handler.rpg = true
+
+handler.register = true
 module.exports = handler
 
 function clockString(ms) {

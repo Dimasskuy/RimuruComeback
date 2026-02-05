@@ -22,4 +22,6 @@ handler.before = function (m, { isAdmin, isBotAdmin }) {
 }
 
 handler.group = true
+
+handler.register = true
 module.exports = handler

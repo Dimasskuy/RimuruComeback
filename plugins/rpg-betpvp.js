@@ -31,8 +31,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 handler.help = ['judipvp <type> <count> <tag>']
 handler.tags = ['rpg']
 handler.command = /^(judipvp)$/i
-handler.register = true
 handler.group = true
+
+handler.register = true
 module.exports = handler
 
 function number(x = 0) {

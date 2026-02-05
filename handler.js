@@ -109,18 +109,18 @@ module.exports = {
             let _user = global.db.data.users[m.sender];
 
             // Fixed Robust Owner Detection
-            let isROwner = [this.user?.id, ...global.owner, global.numberowner]
+            let isROwner = [this.decodeJid(this.user.id), ...global.owner, global.numberowner]
                 .map(v => v?.replace(/[^0-9]/g, '') + '@s.whatsapp.net')
-                .includes(m.sender.replace(/[^0-9]/g, '') + '@s.whatsapp.net');
+                .includes(this.getJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net');
 
             let isOwner = isROwner || m.fromMe;
-            let isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender);
-            let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || (_user.premiumTime > 0 || _user.premium);
+            let isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(this.getJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net');
+            let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(this.getJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net') || (_user.premiumTime > 0 || _user.premium);
 
             const groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
             const participants = (m.isGroup ? groupMetadata.participants : []) || [];
-            const user = (m.isGroup ? participants.find((u) => this.getJid(u.id) === m.sender) : {}) || {};
-            const bot = (m.isGroup ? participants.find((u) => this.getJid(u.id) == this.user?.id) : {}) || {};
+            const user = (m.isGroup ? participants.find((u) => this.getJid(u.id) === this.getJid(m.sender)) : {}) || {};
+            const bot = (m.isGroup ? participants.find((u) => this.getJid(u.id) == this.decodeJid(this.user.id)) : {}) || {};
             const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
             const isBotAdmin = bot?.admin || false;
 

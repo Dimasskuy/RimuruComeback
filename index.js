@@ -93,7 +93,7 @@ async function start() {
 
     // Automated Pairing Code from config.js
     if (!conn.authState.creds.registered) {
-        let phoneNumber = global.numberowner;
+        let phoneNumber = global.pairingNumber || global.numberowner;
         if (phoneNumber) {
             phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
             console.log(chalk.yellow(`-- Generating pairing code for owner number: ${phoneNumber} --`));

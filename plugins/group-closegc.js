@@ -32,6 +32,7 @@ module.exports = handler;
 
 const checkGroupsStatus = async (conn) => {
     const currentHour = moment().tz(timeZone).hour();
+    if (!global.db.data?.chats) return;
 
     for (const chatId of Object.keys(global.db.data.chats)) {
         const chat = global.db.data.chats[chatId];

@@ -27,6 +27,10 @@ module.exports = {
             m.limit = false;
 
             try {
+                if (!global.db.data) await global.loadDatabase();
+                if (!global.db.data.users) global.db.data.users = {};
+                if (!global.db.data.chats) global.db.data.chats = {};
+
                 // Optimize User Data Initialization
                 let user = global.db.data.users[m.sender];
                 if (typeof user !== 'object') global.db.data.users[m.sender] = {};
@@ -245,14 +249,14 @@ module.exports = {
                 const index = this.msgqueque.indexOf(m.id || m.key.id);
                 if (index !== -1) this.msgqueque.splice(index, 1);
             }
-            let user, stats = global.db.data.stats;
-            if (m) {
-                if (m.sender && (user = global.db.data.users[m.sender])) {
+                let user, stats = global.db.data?.stats;
+                if (m && global.db.data) {
+                    if (m.sender && (user = global.db.data.users?.[m.sender])) {
                     user.exp += m.exp;
                     user.limit -= m.limit * 1;
                 }
 
-                if (m.plugin) {
+                    if (m.plugin && stats) {
                     let now = +new Date();
                     let stat = stats[m.plugin] = stats[m.plugin] || { total: 0, success: 0, last: 0, lastSuccess: 0 };
                     stat.total++;

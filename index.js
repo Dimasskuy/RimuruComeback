@@ -72,13 +72,18 @@ global.loadDatabase = async function loadDatabase() {
     }
 
     global.db.data = {
-        users: global.db.data?.users || {},
-        chats: global.db.data?.chats || {},
-        stats: global.db.data?.stats || {},
-        msgs: global.db.data?.msgs || {},
-        sticker: global.db.data?.sticker || {},
+        users: {},
+        chats: {},
+        stats: {},
+        msgs: {},
+        sticker: {},
         ...(global.db.data || {})
     };
+    if (!global.db.data.users) global.db.data.users = {};
+    if (!global.db.data.chats) global.db.data.chats = {};
+    if (!global.db.data.stats) global.db.data.stats = {};
+    if (!global.db.data.msgs) global.db.data.msgs = {};
+    if (!global.db.data.sticker) global.db.data.sticker = {};
     global.db.chain = _.chain(global.db.data);
 };
 loadDatabase();

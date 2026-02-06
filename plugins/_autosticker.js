@@ -3,8 +3,9 @@ const fs = require('fs');
 let handler = m => m;
 
 handler.all = async function(m, { isAdmin, isBotAdmin }) {
-    let chat = db.data.chats[m.chat];
-    let user = db.data.users[m.sender];
+    let chat = global.db.data.chats[m.chat];
+    let user = global.db.data.users[m.sender];
+    if (!chat || !user) return;
     
     if (chat.stiker && !chat.isBanned && !user.banned && !m.isBaileys) {
         let q = m;

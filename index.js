@@ -179,6 +179,10 @@ async function start() {
             if (shouldReconnect) start();
         } else if (connection === 'open') {
             console.log(chalk.green('🌐 Connection opened'));
+            if (global.db.data) {
+                await conn.insertAllGroup().catch(console.error);
+                console.log(chalk.green('✅ LID cache pre-populated from groups'));
+            }
         }
     });
 

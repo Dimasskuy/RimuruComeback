@@ -31,6 +31,11 @@ module.exports = {
                 if (!global.db.data.users) global.db.data.users = {};
                 if (!global.db.data.chats) global.db.data.chats = {};
 
+                // Resolve LID if possible using existing data
+                if (m.sender.endsWith('@lid') && global.db.data.isLid?.[m.sender]) {
+                    m.sender = global.db.data.isLid[m.sender];
+                }
+
                 // Optimize User Data Initialization
                 let user = global.db.data.users[m.sender];
                 if (typeof user !== 'object') global.db.data.users[m.sender] = {};
@@ -113,7 +118,7 @@ module.exports = {
             let _user = global.db.data.users[m.sender];
 
             // Fixed Robust Owner Detection
-            const senderJid = this.getJid(m.sender)
+            const senderJid = m.sender;
             const ownerList = [
                 this.decodeJid(this.user.id),
                 ...global.owner,

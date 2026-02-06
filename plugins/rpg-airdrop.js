@@ -24,14 +24,11 @@ let handler = async (m, { conn, args, usedPrefix, DevMode }) => {
       u.batu += parseInt(batu);
       u.lastclaim = new Date * 1;
     } else if (A < K) {
-      let _limit = ['10', '20', '30'];
-      let limit = _limit[Math.floor(Math.random() * _limit.length)];
       let _money = ['10000', '100000', '500000'];
       let money = _money[Math.floor(Math.random() * _money.length)];
       let _point = ['10000', '100000', '500000'];
       let point = _point[Math.floor(Math.random() * _point.length)];
-      conn.sendFile(m.chat, 'https://telegra.ph/file/d3bc1d7a97c62d3baaf73.jpg', 'rare.jpg', `*Airdrop Rare!*, Kamu mendapatkan Kotak Airdrop *Rare*\n\nSelamat kamu mendapatkan *Rewards*\n• *Limit:* ${limit}\n• *Money:* ${money}\n• *Point:* ${point}`, m);
-      u.limit += parseInt(limit);
+      conn.sendFile(m.chat, 'https://telegra.ph/file/d3bc1d7a97c62d3baaf73.jpg', 'rare.jpg', `*Airdrop Rare!*, Kamu mendapatkan Kotak Airdrop *Rare*\n\nSelamat kamu mendapatkan *Rewards*\n• *Money:* ${money}\n• *Point:* ${point}`, m);
       u.money += parseInt(money);
       u.poin += parseInt(point);
       u.lastclaim = new Date * 1;

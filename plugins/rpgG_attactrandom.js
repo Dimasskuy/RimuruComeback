@@ -1,6 +1,3 @@
-const fs = require('fs');
-const dbPath = './database.json';
-
 let handler = async (m, { conn }) => {
     let user = global.db.data.users[m.sender];
     let guildId = user.guild;
@@ -43,16 +40,16 @@ let handler = async (m, { conn }) => {
         await sleep(getRandomInt(60000, 300000)); // Jeda 1-5 menit
 
         // Simulasi kerusakan dan pencurian
-        let elixirStolen = Math.floor(attackedGuild.elixir / 2); // Mengambil setengah dari eliksir lawan
-        let treasureStolen = Math.floor(attackedGuild.treasure / 2); // Mengambil setengah dari harta lawan
+        let elixirStolen = Math.floor((attackedGuild.eliksir || 0) / 2); // Mengambil setengah dari eliksir lawan
+        let treasureStolen = Math.floor((attackedGuild.harta || 0) / 2); // Mengambil setengah dari harta lawan
 
-        attackedGuild.elixir -= elixirStolen;
-        attackedGuild.treasure -= treasureStolen;
+        attackedGuild.eliksir = (attackedGuild.eliksir || 0) - elixirStolen;
+        attackedGuild.harta = (attackedGuild.harta || 0) - treasureStolen;
 
         // Update basis data
-        fs.writeFileSync(dbPath, JSON.stringify(global.db.data, null, 2));
+        global.db.write();
 
-        let result = guild.name === attackedGuild.name ? 'Draw' : (guild.elixir > attackedGuild.elixir ? `${guild.name} Win` : `${guild.name} Lose`);
+        let result = guild.name === attackedGuild.name ? 'Draw' : ((guild.eliksir || 0) > (attackedGuild.eliksir || 0) ? `${guild.name} Win` : `${guild.name} Lose`);
 
         conn.reply(m.chat, `${result}:
 

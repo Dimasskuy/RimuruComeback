@@ -52,7 +52,7 @@ let handler = async (m, { conn, args }) => {
             break;
     }
 
-    fs.writeFileSync(dbPath, JSON.stringify(global.db.data, null, 2));
+    global.db.write();
 };
 
 handler.help = ['guildupgrade <level/eliksir/harta/guardian/attack>'];

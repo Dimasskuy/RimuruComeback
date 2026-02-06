@@ -1,7 +1,5 @@
 const free = 200000
 const prem = 400000
-const limitfree = 200
-const limitprem = 400
 const moneyfree = 200000
 const moneyprem = 400000
 
@@ -11,9 +9,8 @@ let handler = async (m, { isPrems }) => {
       // conn.reply(m.chat, `Anda sudah mengklaim dan mendapatkan :`, m)
         global.db.data.users[m.sender].exp += isPrems ? prem : free
         global.db.data.users[m.sender].money += isPrems ? moneyprem : moneyfree
-        global.db.data.users[m.sender].limit += isPrems ? limitprem : limitfree
        // global.db.data.users[m.sender].pet += 3
-        conn.reply(m.chat, `Selamat kamu mendapatkan:\n\n+${isPrems ? prem : free} Exp\n+${isPrems ? moneyprem : moneyfree} Money\n+${isPrems ? limitprem : limitfree} Limit`, m)
+        conn.reply(m.chat, `Selamat kamu mendapatkan:\n\n+${isPrems ? prem : free} Exp\n+${isPrems ? moneyprem : moneyfree} Money`, m)
         global.db.data.users[m.sender].lastyearly = new Date * 1
     }
 handler.help = ['yearly']

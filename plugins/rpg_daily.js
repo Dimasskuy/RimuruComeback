@@ -10,15 +10,13 @@ let handler = async (m, {conn, text, isPrems}) => {
     // Cek apakah sudah 24 jam (86400000 ms) sejak klaim terakhir
     if (currentTime - lastClaimTime < 86400000) throw `🎁 *Anda telah mengumpulkan hadiah harian Anda*\n\n🕚 Masuk kembali *${msToTime(86400000 - (currentTime - lastClaimTime))}*`;
 
-    // Tambahkan XP dan limit sesuai jenis user
+    // Tambahkan XP sesuai jenis user
     global.db.data.users[m.sender].exp += isPrems ? prem : free;
-    global.db.data.users[m.sender].limit += 2; // Tambahkan 2 limit untuk semua user
     m.reply(`
 🎁 *HADIAH DAILY*
 *Spam terus untuk mendapatkan hadiah*
 cek .balance jumlah hadiah mu!
-🆙 *XP* : +${isPrems ? prem : free}
-💎 *Limit* : +2`);
+🆙 *XP* : +${isPrems ? prem : free}`);
 
     // Update waktu klaim terakhir
     global.db.data.users[m.sender].lastclaim = currentTime;

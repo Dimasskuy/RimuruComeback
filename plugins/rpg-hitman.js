@@ -35,7 +35,7 @@ let handler = async (m, { conn }) => {
 `.trim()
 
         var hsl = `
-*—[ Hasil ${name} ]—*
+*—[ Hasil @${m.sender.split('@')[0]} ]—*
 ➕ 💹 Uang = [ ${rbrb4} ]
 ➕ ✨ Exp = [ ${rbrb5} ]
 ➕ 👮 Pelanggaran +1

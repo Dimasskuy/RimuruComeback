@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 let handler = async (m, { conn, args }) => {
     let userId = m.sender;
     let user = global.db.data.users[userId];
@@ -33,7 +31,7 @@ let handler = async (m, { conn, args }) => {
         conn.reply(m.chat, 'Format yang kamu masukkan salah. Contoh penggunaan: .guildstaff tambah/hapus @user', m);
     }
 
-    fs.writeFileSync(dbPath, JSON.stringify(global.db.data, null, 2));
+    global.db.write();
 };
 
 handler.help = ['guildstaff <tambah/hapus> <@user>'];

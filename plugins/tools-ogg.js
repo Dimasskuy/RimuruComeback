@@ -17,7 +17,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     if (!media) throw 'Media tidak dapat diunduh'
     let audio = await toPTT(media, 'mp4')
     if (!audio.data) throw 'Gagal melakukan konversi.'
-    await conn.sendFile(m.chat, audio.data, 'file.mp4', '', m, 1, { mimetype: 'audio/mp4' })
+    await conn.sendMessage(m.chat, { audio: audio.data, mimetype: 'audio/ogg; codecs=opus', ptt: true }, { quoted: m })
   }
 }
 handler.help = ['tomp3', 'tovn']

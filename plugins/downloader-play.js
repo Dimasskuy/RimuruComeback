@@ -22,18 +22,18 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             throw mono('Video tidak ditemukan.');
         }
 
-        r = await axios.get(`https://api.elrayyxml.web.id/api/downloader/ytmp3?url=${vid.url}`, {
+        r = await axios.get(`https://api.deline.web.id/downloader/ytmp3?url=${encodeURIComponent(vid.url)}`, {
             timeout: 20000
         });
 
-        if (!r.data || !r.data.status || !r.data.result || !r.data.result.url) {
+        if (!r.data || !r.data.status || !r.data.result || !r.data.result.dlink) {
             throw mono('❌ Gagal mengambil data dari API.');
         }
 
         await conn.sendMessage(m.chat, {
-            audio: { url: r.data.result.url },
+            audio: { url: r.data.result.dlink },
             mimetype: 'audio/mpeg',
-            fileName: (r.data.result.title || 'Audio') + '.mp3',
+            fileName: (r.data.result.youtube.title || 'Audio') + '.mp3',
             contextInfo: { externalAdReply: {
                 title: vid.title || 'Audio',
                 body: vid.channel || 'Unknown',

@@ -21,17 +21,14 @@ let handler = async (m, { conn }) => {
 
   let randomMoney = Math.floor(Math.random() * (1000000 - 10000 + 1) + 10000)
   let randomExp = Math.floor(Math.random() * (1000 - 100 + 1) + 100)
-  let randomLimit = Math.floor(Math.random() * (20 - 10 + 1) + 10)
 
   user.money += randomMoney
   user.exp += randomExp
-  user.limit += randomLimit
 
   let replyMsg = `*Selamat Anda Telah Mengerjakan Misi Hari Ini*
 
 ◦ *Money:* ${randomMoney}
-◦ *Exp:* ${randomExp}
-◦ *Limit:* ${randomLimit}`
+◦ *Exp:* ${randomExp}`
 
   global.db.data.users[m.sender] = user
   m.reply(replyMsg)

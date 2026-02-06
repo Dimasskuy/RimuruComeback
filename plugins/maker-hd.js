@@ -14,7 +14,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
         if (!imageUrl) throw 'Gagal mengupload gambar.';
 
         await conn.sendMessage(m.chat, { react: { text: '📤', key: m.key } });
-        const apiUrl = `https://api.siputzx.my.id/api/iloveimg/upscale?image=${imageUrl}&scale=2`;
+        const apiUrl = `https://archive.lick.eu.org/api/tools/upscale?url=${encodeURIComponent(imageUrl)}`;
         const response = await axios.get(apiUrl, { responseType: 'arraybuffer' });
 
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });

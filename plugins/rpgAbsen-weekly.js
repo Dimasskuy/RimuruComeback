@@ -1,7 +1,5 @@
 const free = 10000
 const prem = 20000
-const limitfree = 10
-const limitprem = 20
 const moneyfree = 10000
 const moneyprem = 20000
 
@@ -11,9 +9,8 @@ let handler = async (m, { isPrems }) => {
     //    conn.reply(m.chat, `Anda sudah mengklaim dan mendapatkan :`, m)
         global.db.data.users[m.sender].exp += isPrems ? prem : free
         global.db.data.users[m.sender].money += isPrems ? moneyprem : moneyfree
-        global.db.data.users[m.sender].limit += isPrems ? limitprem : limitfree
        // global.db.data.users[m.sender].legendary += 3
-        conn.reply(m.chat, `Selamat kamu mendapatkan:\n\n+${isPrems ? prem : free} Exp\n+${isPrems ? moneyprem : moneyfree} Money\n+${isPrems ? limitprem : limitfree} Limit`, m)
+        conn.reply(m.chat, `Selamat kamu mendapatkan:\n\n+${isPrems ? prem : free} Exp\n+${isPrems ? moneyprem : moneyfree} Money`, m)
         global.db.data.users[m.sender].lastweekly= new Date * 1
     }
     

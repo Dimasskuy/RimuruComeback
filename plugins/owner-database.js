@@ -1,7 +1,7 @@
 let fs = require('fs')
 let handler  = async (m, { conn, text }) => {
-m.reply('Tunggu Sebentar, Proses Getting File database.json')
-let db = fs.readFileSync('./database.json')
+m.reply('Tunggu Sebentar, Proses Getting Database...')
+let db = Buffer.from(JSON.stringify(global.db.data, null, 2))
 conn.sendMessage(m.chat, { document: db, mimetype: 'application/json', fileName: 'database.json' }, { quoted: m })
 }
 handler.help = ['getdb','getdatabase'].map(v => v + ' <teks>')

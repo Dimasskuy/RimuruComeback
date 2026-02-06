@@ -10,16 +10,16 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     let r = null;
 
     try {
-        r = await axios.get(`https://api.elrayyxml.web.id/api/downloader/ytmp3?url=${text}`, {
+        r = await axios.get(`https://api.deline.web.id/downloader/ytmp3?url=${encodeURIComponent(text)}`, {
             timeout: 20000
         });
 
-        if (!r.data || !r.data.status || !r.data.result || !r.data.result.url) {
+        if (!r.data || !r.data.status || !r.data.result || !r.data.result.dlink) {
             throw mono('❌ Gagal mengambil data dari API.');
         }
 
-        const title = r.data.result.title || 'Audio';
-        const url = r.data.result.url;
+        const title = r.data.result.youtube.title || 'Audio';
+        const url = r.data.result.dlink;
 
         await conn.sendMessage(m.chat, {
             audio: { url: url },

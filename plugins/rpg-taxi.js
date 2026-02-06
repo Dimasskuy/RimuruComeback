@@ -51,7 +51,7 @@ let handler = async (m, { conn }) => {
 `.trim()
 
         var hasil = `
-*—[ Hasil taxi ${name} ]—*
+*—[ Hasil taxi @${m.sender.split('@')[0]} ]—*
 ➕ 💹 Uang = [ ${randomaku1} ]
 ➕ ✨ Exp = [ ${randomaku2} ]
 ➕ 😍 Order Selesai = +1
@@ -70,7 +70,7 @@ let handler = async (m, { conn }) => {
         ]
         
         setTimeout(() => {
-            m.reply(hasil)
+            conn.reply(m.chat, hasil, m, { mentions: [m.sender] })
         }, 27000)
 
         setTimeout(() => {

@@ -38,7 +38,7 @@ let handler = async (m, { conn }) => {
           ⬛⬛⬛⬛⬛⬛⬛🛵⬛⬛
           🏘️🏘️🏘️🏘️🌳  🌳 🏘️       \n\n\n➕ Sampai di tujuan...`, 
           `➕ 💹Menerima gaji....`, 
-          `*—[ Hasil Ngojek ${name} ]—*
+          `*—[ Hasil Ngojek @${m.sender.split('@')[0]} ]—*
           ➕ 💹 Uang = [ ${zero4} ]
           ➕ ✨ Exp = [ ${zero5} ] 		 
           ➕ 😍 Order Selesai = +1
@@ -49,7 +49,7 @@ let handler = async (m, { conn }) => {
       let { key } = await conn.sendMessage(m.chat, {text: 'Mencari pelanggan.....'})
       for (let i = 0; i < arr.length; i++) {
           await new Promise(resolve => setTimeout(resolve, 10000));
-          await conn.sendMessage(m.chat, { text: arr[i], edit: key });
+          await conn.sendMessage(m.chat, { text: arr[i], edit: key, mentions: conn.parseMention(arr[i]) });
       }
 
       global.db.data.users[m.sender].money += rbrb4

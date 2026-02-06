@@ -15,7 +15,7 @@ let handler = async (m, { conn, command, args, isOwner }) => {
             global.db.data.settings.autoBackup = true;
             
             try {
-                let db = fs.readFileSync('./database.json');
+                let db = Buffer.from(JSON.stringify(global.db.data, null, 2));
                 await conn.sendMessage(global.numberowner + '@s.whatsapp.net', {
                     document: db,
                     mimetype: 'application/json',
@@ -43,7 +43,7 @@ const performAutoBackup = async (conn) => {
     if (!global.db.data.settings?.autoBackup) return;
     
     try {
-        let db = fs.readFileSync('./database.json');
+        let db = Buffer.from(JSON.stringify(global.db.data, null, 2));
         
         await conn.sendMessage(global.numberowner + '@s.whatsapp.net', {
             document: db,

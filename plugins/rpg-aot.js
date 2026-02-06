@@ -75,7 +75,6 @@ let handler = async (m, { conn, usedPrefix, owner }) => {
                 let exp = `${Math.floor(Math.random() * 10001)}`.trim()
                 let kayu = `${Math.floor(Math.random() * 51)}`.trim()
                 let batu = `${Math.floor(Math.random() * 51)}`.trim()
-                let limit = `${Math.floor(Math.random() * 50) + 1}`.trim() // Random limit between 1 and 50
                 let _stamina = `${Math.floor(Math.random() * 51)}`.trim()
                 let stamina = (_stamina * 1)
                 let _mythic = `${pickRandom(['1', '3', '1', '1', '2'])}`
@@ -99,7 +98,6 @@ let handler = async (m, { conn, usedPrefix, owner }) => {
 🎟️ *Tiketcoin:* 1
 🪵 *Kayu:* ${kayu}
 🪨 *Batu:* ${batu}
-🏷️ *Limit:* ${limit}
 ⚡ *Stamina berkurang:* -${stamina}
 `.trim()
 
@@ -127,7 +125,6 @@ let handler = async (m, { conn, usedPrefix, owner }) => {
                 user.kayu += kayu * 1
                 user.batu += batu * 1
                 user.stamina -= stamina // Decrease stamina by random value
-                user.limit += limit * 1 // Increase limit
                 user.lastadventure = new Date * 1
 
                 // Decrease sword and armor durability

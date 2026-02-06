@@ -12,7 +12,7 @@ const { makeWASocket, protoType } = require('./lib/simple');
 const pino = require('pino');
 const path = require('path');
 const fs = require('fs');
-const { Low, JSONFile } = require('./lib/lowdb');
+const mongoDB = require('./lib/mongoDB');
 const yargs = require('yargs/yargs');
 const chalk = require('chalk');
 const _ = require('lodash');
@@ -37,7 +37,7 @@ for (const dir of dirs) {
     }
 }
 
-global.db = new Low(new JSONFile('database.json'));
+global.db = new mongoDB(global.urlMongo);
 global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
     if (global.db.READ) return new Promise((resolve) => setInterval(function () {
@@ -47,12 +47,36 @@ global.loadDatabase = async function loadDatabase() {
     global.db.READ = true;
     await global.db.read();
     global.db.READ = false;
+
+    // Migration Logic
+    if (!global.db.data || Object.keys(global.db.data).length === 0) {
+        const localDbPath = 'database.json';
+        if (fs.existsSync(localDbPath)) {
+            try {
+                const localData = JSON.parse(fs.readFileSync(localDbPath, 'utf-8'));
+                global.db.data = {
+                    users: {},
+                    chats: {},
+                    stats: {},
+                    msgs: {},
+                    sticker: {},
+                    ...localData
+                };
+                await global.db.write();
+                console.log(chalk.green('✅ Data migrated from database.json to MongoDB'));
+                fs.renameSync(localDbPath, localDbPath + '.bak');
+            } catch (e) {
+                console.error(chalk.red('❌ Failed to migrate data:'), e);
+            }
+        }
+    }
+
     global.db.data = {
-        users: {},
-        chats: {},
-        stats: {},
-        msgs: {},
-        sticker: {},
+        users: global.db.data?.users || {},
+        chats: global.db.data?.chats || {},
+        stats: global.db.data?.stats || {},
+        msgs: global.db.data?.msgs || {},
+        sticker: global.db.data?.sticker || {},
         ...(global.db.data || {})
     };
     global.db.chain = _.chain(global.db.data);

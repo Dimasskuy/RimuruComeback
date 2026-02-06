@@ -14,6 +14,7 @@ global.stiker_wait = 'Stiker sedang dibuat' // ini pesan simulasi saat loading p
 global.packname = 'Made With' // watermark stikcker packname
 global.author = 'Rimuru Assistant' // watermark stikcker author
 global.maxwarn = '5' // Peringatan maksimum Warn
+global.urlMongo = process.env.MONGODB_URL || 'mongodb+srv://dimas:dimas@rimurucomeback.msxilze.mongodb.net/?appName=rimurucomeback'
 
 global.autobio = false // Set true/false untuk mengaktifkan atau mematikan autobio (default: false)
 global.antiporn = false // Set true/false untuk Auto delete pesan porno (bot harus admin) (default: false)

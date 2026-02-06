@@ -25,13 +25,18 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         if (/vibra/.test(command)) set = '-filter_complex "vibrato=f=15"'
         let ran = (new Date * 1) + '.mp3'
         let media = path.join(__dirname, '../tmp/' + ran)
-        let filename = media + '.mp3'
+        let filename = path.join(__dirname, '../tmp/' + (new Date * 1) + '.opus')
         await fs.promises.writeFile(media, audio)
-        exec(`ffmpeg -i ${media} ${set} ${filename}`, async (err) => {
+        exec(`ffmpeg -i ${media} ${set} -c:a libopus -b:a 128k -vbr on ${filename}`, async (err) => {
             await fs.promises.unlink(media)
             if (err) return Promise.reject( `_*Error!*_`)
             let buff = await fs.promises.readFile(filename)
-            conn.sendFile(m.chat, buff, ran, null, m, /vn/.test(args[0]), { quoted: m, mimetype: 'audio/mp4' })
+            let isVn = /vn/.test(args[0])
+            if (isVn) {
+                await conn.sendMessage(m.chat, { audio: buff, mimetype: 'audio/ogg; codecs=opus', ptt: true }, { quoted: m })
+            } else {
+                await conn.sendFile(m.chat, buff, 'audio.mp3', null, m, false, { mimetype: 'audio/mpeg' })
+            }
             await fs.promises.unlink(filename)
         })
     } catch (e) {

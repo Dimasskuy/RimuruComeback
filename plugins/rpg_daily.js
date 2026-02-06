@@ -12,11 +12,13 @@ let handler = async (m, {conn, text, isPrems}) => {
 
     // Tambahkan XP sesuai jenis user
     global.db.data.users[m.sender].exp += isPrems ? prem : free;
+    global.db.data.users[m.sender].limit += 2;
     m.reply(`
 🎁 *HADIAH DAILY*
 *Spam terus untuk mendapatkan hadiah*
 cek .balance jumlah hadiah mu!
-🆙 *XP* : +${isPrems ? prem : free}`);
+🆙 *XP* : +${isPrems ? prem : free}
+💎 *Limit* : +2`);
 
     // Update waktu klaim terakhir
     global.db.data.users[m.sender].lastclaim = currentTime;

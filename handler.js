@@ -13,6 +13,7 @@ const initializedChats = new Set();
 
 // Categorize plugins once to save CPU
 let categorizedPlugins = { all: [], before: [], command: [] };
+let pluginCount = 0;
 function categorizePlugins() {
     categorizedPlugins = { all: [], before: [], command: [] };
     for (let name in global.plugins) {
@@ -31,7 +32,11 @@ module.exports = {
         if (!chatUpdate) return;
 
         // Categorize if not done yet or if plugins changed
-        if (categorizedPlugins.command.length === 0) categorizePlugins();
+        const currentPluginCount = Object.keys(global.plugins || {}).length;
+        if (categorizedPlugins.command.length === 0 || pluginCount !== currentPluginCount) {
+            categorizePlugins();
+            pluginCount = currentPluginCount;
+        }
 
         let m = chatUpdate.messages[chatUpdate.messages.length - 1];
         if (!m) return;
@@ -46,6 +51,12 @@ module.exports = {
                 if (!global.db.data) await global.loadDatabase();
                 if (!global.db.data.users) global.db.data.users = {};
                 if (!global.db.data.chats) global.db.data.chats = {};
+
+                // Resolve LID if possible using existing data
+                if (m.sender.endsWith('@lid')) {
+                    const jid = global.db.data.isLid?.[m.sender] || this.getJid(m.sender);
+                    if (jid && jid !== m.sender) m.sender = jid;
+                }
 
                 // Optimize User Data Initialization
                 let user = global.db.data.users[m.sender];
@@ -254,13 +265,13 @@ module.exports = {
                         console.error(e);
                         if (e) {
                             let text = util.format(e);
-                            if (this.ws.readyState === 1) m.reply(text);
+                            if (this.ws && this.ws.readyState === 1) m.reply(text);
                         }
                     } finally {
                         if (typeof plugin.after === 'function') {
                             try { await plugin.after.call(this, m, extra); } catch (e) { console.error(e); }
                         }
-                        if (m.limit && this.ws.readyState === 1) m.reply(+m.limit + ' Limit terpakai');
+                        if (m.limit && this.ws && this.ws.readyState === 1) m.reply(+m.limit + ' Limit terpakai');
                     }
                     break;
                 }
@@ -313,7 +324,7 @@ module.exports = {
                 .replace('@desc', groupMetadata.desc?.toString() || '')
                 .replace('@user', '@' + jid.split('@')[0]);
 
-            if (this.ws.readyState === 1) {
+            if (this.ws && this.ws.readyState === 1) {
                 await this.sendMessage(id, { text, mentions: [jid] }).catch(console.error);
             }
         }

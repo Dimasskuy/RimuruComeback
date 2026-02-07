@@ -140,14 +140,14 @@ async function start() {
             console.log(chalk.yellow(`-- Generating pairing code for owner number: ${phoneNumber} --`));
             setTimeout(async () => {
                 try {
-                    if (conn.ws.readyState !== 1) return;
+                    console.log(chalk.cyan('-- Requesting pairing code... --'));
                     let code = await conn.requestPairingCode(phoneNumber, "RTXZYBOT");
                     code = code?.match(/.{1,4}/g)?.join('-') || code;
                     console.log(chalk.black(chalk.bgGreen('Your Pairing Code : ')), chalk.black(chalk.bgWhite(code)));
                 } catch (e) {
                     console.error('Error requesting pairing code:', e);
                 }
-            }, 3000);
+            }, 5000);
         } else {
             console.log(chalk.red('Please set global.numberowner in config.js to use automatic pairing code.'));
         }

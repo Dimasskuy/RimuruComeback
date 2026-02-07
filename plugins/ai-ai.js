@@ -2,11 +2,23 @@ const fetch = require('node-fetch');
 const crypto = require('crypto');
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) throw `Input query.\n\nContoh: ${usedPrefix + command} apa itu bot?`;
+    let q = m.quoted ? m.quoted : m;
+    let mime = (q.msg || q).mimetype || '';
+
+    if (!text && !/image/g.test(mime)) throw `Input query atau kirim/balas gambar dengan caption.\n\nContoh: ${usedPrefix + command} apa itu bot?`;
 
     await m.reply(global.wait);
 
     try {
+        if (/image/g.test(mime)) {
+            let img = await q.download?.();
+            if (img) {
+                const uploadImage = require('../lib/uploadImage');
+                let url = await uploadImage(img);
+                if (url) text = `[Image: ${url}]\n${text || 'jelaskan gambar ini'}`;
+            }
+        }
+
         // Cici AI logic
         let uuid = () => crypto.randomUUID();
         let timestamp = Math.floor(Date.now() / 1000);

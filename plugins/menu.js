@@ -271,7 +271,7 @@ let handler = async (m, { conn, usedPrefix: _p, args = [] }) => {
         let text = menuCategory.replace(new RegExp(`%(${Object.keys(replace).sort((a, b) => b.length - a.length).join`|`})`, 'g'),
             (_, name) => '' + replace[name]);
 
-        if (conn.ws.readyState === 1) {
+        if (conn.ws && conn.ws.readyState === 1) {
             await conn.relayMessage(m.chat, {
                 extendedTextMessage: {
                     text: text,

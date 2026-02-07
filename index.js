@@ -43,12 +43,14 @@ for (const dir of dirs) {
 global.db = new mongoDB(global.urlMongo);
 global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
-    if (global.db.READ) return new Promise((resolve) => setInterval(function () {
-        (!global.db.READ ? (clearInterval(this), resolve(global.db.data == null ? global.loadDatabase() : global.db.data)) : null)
-    }, 1 * 1000));
+    if (global.db.READ) return;
     if (global.db.data !== null) return;
     global.db.READ = true;
-    await global.db.read();
+    try {
+        await global.db.read();
+    } catch (e) {
+        console.error(chalk.red('❌ Failed to read database:'), e);
+    }
     global.db.READ = false;
 
     // Migration Logic
@@ -89,7 +91,10 @@ global.loadDatabase = async function loadDatabase() {
     if (!global.db.data.sticker) global.db.data.sticker = {};
     global.db.chain = _.chain(global.db.data);
 };
-loadDatabase();
+(async () => {
+    await loadDatabase();
+    console.log(chalk.yellow('📦 Database initialized'));
+})();
 
 global.APIs = { botcahx: 'https://api.botcahx.eu.org' };
 global.APIKeys = { 'https://api.botcahx.eu.org': 'YOUR_APIKEY_HERE' };

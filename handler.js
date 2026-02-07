@@ -30,7 +30,7 @@ module.exports = {
     async handler(chatUpdate) {
         if (global.db.data == null) await global.loadDatabase();
         this.msgqueque = this.msgqueque || [];
-        if (!chatUpdate) return;
+        if (!chatUpdate || !chatUpdate.messages) return;
 
         // Hot-reload optimized list if needed
         const currentPluginCount = Object.keys(global.plugins || {}).length;
@@ -45,6 +45,7 @@ module.exports = {
         try {
             m = simple.smsg(this, m) || m;
             if (!m) return;
+            if (m.mtype === 'protocolMessage' || m.mtype === 'senderKeyDistributionMessage' || !m.text && !m.quoted && !m.msg?.fileSha256) return;
             m.exp = 0;
             m.limit = false;
 
@@ -127,7 +128,7 @@ module.exports = {
                 }
             }
 
-            if ((m.id.startsWith('3EB0') || (m.id.startsWith('BAE5') && m.id.length === 16) || m.isBaileys) && m.fromMe) return;
+            if (m.isBaileys && m.fromMe) return;
             m.exp += Math.ceil(Math.random() * 10);
 
             let usedPrefix;
@@ -159,10 +160,11 @@ module.exports = {
             const groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
             const participants = (m.isGroup ? groupMetadata.participants : []) || [];
 
+            // Super-fast User/Bot lookup in group using pre-decoded IDs
             const decodedSender = m.sender;
             const decodedBot = this.decodeJid(this.user.id);
-            const user = m.isGroup ? (participants.find(u => this.decodeJid(u.id) === decodedSender || u.lid === decodedSender) || {}) : {};
-            const bot = m.isGroup ? (participants.find(u => this.decodeJid(u.id) === decodedBot) || {}) : {};
+            const user = m.isGroup ? (participants.find(u => u.decodedId === decodedSender || u.lid === decodedSender || u.id === decodedSender) || {}) : {};
+            const bot = m.isGroup ? (participants.find(u => u.decodedId === decodedBot || u.id === decodedBot) || {}) : {};
 
             const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
             const isBotAdmin = bot?.admin || false;
@@ -313,8 +315,12 @@ module.exports = {
         if (!groupMetadata) return;
 
         for (let user of participants) {
-            let jid = this.getJid(user);
-            if (!jid || (!jid.includes('@s.whatsapp.net') && !jid.includes('@lid'))) continue;
+            let jid = this.decodeJid(user);
+            // Update LID cache if possible
+            if (jid.includes('@s.whatsapp.net')) {
+                // If we get an update, we might not have the LID here, but we can decode the JID
+            }
+
             const isAdd = ['add', 'invite', 'invite_v4'].includes(action);
             let text = (isAdd ? (chat.sWelcome || 'Welcome, @user!') : (chat.sBye || 'Bye, @user!'))
                 .replace('@subject', groupMetadata.subject || 'this group')

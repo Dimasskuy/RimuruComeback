@@ -1,5 +1,6 @@
 let handler = async (m, { conn, args }) => {
   let target = m.mentionedJid[0] || m.sender 
+  target = conn.getJid(target)
   let user = global.db.data.users[target]
   
   let armor = user.armor

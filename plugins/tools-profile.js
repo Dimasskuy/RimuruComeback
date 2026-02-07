@@ -54,8 +54,9 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     about = status.status || ''
   } catch {}
 
-  let username = await conn.getName(who)
-  let number = who.split('@')[0]
+  const resolvedWho = conn.getJid(who)
+  let username = await conn.getName(resolvedWho)
+  let number = resolvedWho.split('@')[0]
 
   let role = (level <= 2) ? 'Newbie'
     : (level <= 4) ? 'Beginner Grade 1'
@@ -122,14 +123,15 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   let math = max - xp
   let sn = createHash('md5').update(who).digest('hex')
 
+  const isLid = resolvedWho.endsWith('@lid')
   let str = `
 ┌─⊷ *PROFILE*
 ┃👤 • *Name:* ${username} ${registered ? `(${name})` : ''}
-┃@${number}
+┃@${number}${isLid ? ' (Unlinked LID)' : ''}
 ┃📝 • *About:* ${about || 'Tidak ada bio'}
 ┃❤️ • *Pasangan:* ${pasangan ? `@${pasangan.split('@')[0]}` : 'Jomblo'}
-┃📞 • *Number:* ${PhoneNumber('+' + number).getNumber('international')}
-┃🔗 • *Link:* https://wa.me/${number}
+┃📞 • *Number:* ${isLid ? 'Hidden/Not Linked' : PhoneNumber('+' + number).getNumber('international')}
+┃🔗 • *Link:* ${isLid ? 'N/A' : 'https://wa.me/' + number}
 ┃🔢 • *Serial:* ${sn}
 ┃🎂 • *Umur:* ${registered ? age + ' tahun' : '-'}
 └──────────────

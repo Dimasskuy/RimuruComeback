@@ -47,9 +47,14 @@ module.exports = {
             if (!m) return;
             if (m.mtype === 'protocolMessage' || m.mtype === 'senderKeyDistributionMessage' || !m.text && !m.quoted && !m.msg?.fileSha256) return;
 
-            // Critical: Resolve LID to phone number JID immediately
-            const sender = this.getJid(m.sender);
-            if (sender && sender !== m.sender) m.sender = sender;
+            // Critical: Resolve LID to phone number JID and merge data
+            const rawSender = m.key.participant || m.key.remoteJid;
+            const originalSender = m.sender;
+            const resolvedSender = this.getJid(originalSender) || this.getJid(rawSender);
+
+            if (resolvedSender && resolvedSender !== m.sender) {
+                m.sender = resolvedSender;
+            }
 
             m.exp = 0;
             m.limit = false;
@@ -58,6 +63,29 @@ module.exports = {
                 if (!global.db.data) await global.loadDatabase();
                 if (!global.db.data.users) global.db.data.users = {};
                 if (!global.db.data.chats) global.db.data.chats = {};
+
+                // Identity Merging for LIDs and JIDs
+                const possibleIds = [originalSender, rawSender].filter(id => id && id.endsWith('@lid') && id !== m.sender);
+                for (let lid of possibleIds) {
+                    if (global.db.data.users[lid]) {
+                        const lidData = global.db.data.users[lid];
+                        if (!global.db.data.users[m.sender]) {
+                            global.db.data.users[m.sender] = { ...lidData };
+                        } else {
+                            const jidData = global.db.data.users[m.sender];
+                            // Merge logic: take the "best" values from both
+                            for (let key in lidData) {
+                                const val = lidData[key];
+                                if (typeof val === 'number' && !isNaN(val)) {
+                                    jidData[key] = Math.max(jidData[key] || 0, val);
+                                } else if (val && (jidData[key] === undefined || jidData[key] === null || jidData[key] === false || jidData[key] === '')) {
+                                    jidData[key] = val;
+                                }
+                            }
+                        }
+                        delete global.db.data.users[lid];
+                    }
+                }
 
                 // Optimized and Repair-safe User Data Initialization
                 let user = global.db.data.users[m.sender];
@@ -68,14 +96,23 @@ module.exports = {
                 if (!initializedUsers.has(m.sender)) {
                     for (let key in schema.userDefaults) {
                         const defaultValue = schema.userDefaults[key];
-                        if (!(key in user) || (typeof defaultValue === 'number' && (typeof user[key] !== 'number' || isNaN(user[key])))) {
-                            user[key] = defaultValue;
-                        }
-                    }
-                    if (!user.name || /^[0-9]+$/.test(user.name)) {
-                        user.name = m.name || this.getName(m.sender);
+                        if (!(key in user)) user[key] = defaultValue;
                     }
                     initializedUsers.add(m.sender);
+                }
+
+                // Continuous Repair for numerical fields to prevent NaN propagation
+                for (let key in schema.userDefaults) {
+                    if (typeof schema.userDefaults[key] === 'number') {
+                        if (typeof user[key] !== 'number' || isNaN(user[key])) {
+                            user[key] = schema.userDefaults[key];
+                        }
+                    }
+                }
+
+                if (!user.name || /^[0-9]+$/.test(user.name)) {
+                    const bestName = m.name || this.getName(m.sender);
+                    if (bestName && !bestName.includes('@')) user.name = bestName;
                 }
 
                 // Optimized and Repair-safe Chat Data Initialization
@@ -87,11 +124,18 @@ module.exports = {
                 if (!initializedChats.has(m.chat)) {
                     for (let key in schema.chatDefaults) {
                         const defaultValue = schema.chatDefaults[key];
-                        if (!(key in chat) || (typeof defaultValue === 'number' && (typeof chat[key] !== 'number' || isNaN(chat[key])))) {
-                            chat[key] = defaultValue;
-                        }
+                        if (!(key in chat)) chat[key] = defaultValue;
                     }
                     initializedChats.add(m.chat);
+                }
+
+                // Continuous Repair for numerical fields
+                for (let key in schema.chatDefaults) {
+                    if (typeof schema.chatDefaults[key] === 'number') {
+                        if (typeof chat[key] !== 'number' || isNaN(chat[key])) {
+                            chat[key] = schema.chatDefaults[key];
+                        }
+                    }
                 }
 
                 // Optimize Member GC Data

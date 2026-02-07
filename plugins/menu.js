@@ -119,16 +119,21 @@ let handler = async (m, { conn, usedPrefix: _p, args = [] }) => {
         let muptime = clockString(process.uptime() * 1000);
         let totalreg = Object.keys(global.db.data.users).length;
 
-        let help = Object.values(global.plugins).filter(plugin => !plugin.disabled).map(plugin => {
-            return {
-                help: Array.isArray(plugin.help) ? plugin.help : [plugin.help],
-                tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
-                prefix: 'customPrefix' in plugin,
-                limit: plugin.limit,
-                premium: plugin.premium,
-                enabled: !plugin.disabled,
-            };
-        });
+        // Cache help list to save CPU
+        if (!global.helpCache || global.lastHelpUpdate < Date.now() - 60000) {
+            global.helpCache = Object.values(global.plugins).filter(plugin => !plugin.disabled).map(plugin => {
+                return {
+                    help: Array.isArray(plugin.help) ? plugin.help : [plugin.help],
+                    tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
+                    prefix: 'customPrefix' in plugin,
+                    limit: plugin.limit,
+                    premium: plugin.premium,
+                    enabled: !plugin.disabled,
+                };
+            });
+            global.lastHelpUpdate = Date.now();
+        }
+        let help = global.helpCache;
 
         // Fungsi untuk mengucapkan salam berdasarkan waktu
         function ucapan() {
@@ -266,23 +271,25 @@ let handler = async (m, { conn, usedPrefix: _p, args = [] }) => {
         let text = menuCategory.replace(new RegExp(`%(${Object.keys(replace).sort((a, b) => b.length - a.length).join`|`})`, 'g'),
             (_, name) => '' + replace[name]);
 
-        await conn.relayMessage(m.chat, {
-            extendedTextMessage: {
-                text: text,
-                contextInfo: {
-                    mentionedJid: [m.sender],
-                    externalAdReply: {
-                        title: ucapan(),  // Menggunakan ucapan yang tepat
-                        mediaType: 1,
-                        previewType: 0,
-                        renderLargerThumbnail: true,
-                        thumbnailUrl: 'https://i.pinimg.com/736x/ec/63/bd/ec63bd973d649637c460f84c717b307d.jpg',
-                        sourceUrl: 'https://whatsapp.com/channel/0029VaCvaNgBPzjcfrTixA1U'
-                    }
-                },
-                mentions: [m.sender]
-            }
-        }, {});
+        if (conn.ws.readyState === 1) {
+            await conn.relayMessage(m.chat, {
+                extendedTextMessage: {
+                    text: text,
+                    contextInfo: {
+                        mentionedJid: [m.sender],
+                        externalAdReply: {
+                            title: ucapan(),  // Menggunakan ucapan yang tepat
+                            mediaType: 1,
+                            previewType: 0,
+                            renderLargerThumbnail: true,
+                            thumbnailUrl: 'https://i.pinimg.com/736x/ec/63/bd/ec63bd973d649637c460f84c717b307d.jpg',
+                            sourceUrl: 'https://whatsapp.com/channel/0029VaCvaNgBPzjcfrTixA1U'
+                        }
+                    },
+                    mentions: [m.sender]
+                }
+            }, {}).catch(console.error);
+        }
     } catch (e) {
         conn.reply(m.chat, 'Maaf, menu sedang error', m);
         console.error(e);

@@ -12,6 +12,7 @@ const { makeWASocket, protoType } = require('./lib/simple');
 const pino = require('pino');
 const path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
 const mongoDB = require('./lib/mongoDB');
 const yargs = require('yargs/yargs');
 const chalk = require('chalk');
@@ -22,6 +23,8 @@ const readline = require('readline');
 
 // Execute Prototype Extension
 protoType();
+
+mongoose.set('strictQuery', false);
 
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse());
 global.prefix = new RegExp('^[' + (opts['prefix'] || '‎xzXZ/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.\\-') + ']');
@@ -136,9 +139,14 @@ async function start() {
             phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
             console.log(chalk.yellow(`-- Generating pairing code for owner number: ${phoneNumber} --`));
             setTimeout(async () => {
-                let code = await conn.requestPairingCode(phoneNumber, "RTXZYBOT");
-                code = code?.match(/.{1,4}/g)?.join('-') || code;
-                console.log(chalk.black(chalk.bgGreen('Your Pairing Code : ')), chalk.black(chalk.bgWhite(code)));
+                try {
+                    if (conn.ws.readyState !== 1) return;
+                    let code = await conn.requestPairingCode(phoneNumber, "RTXZYBOT");
+                    code = code?.match(/.{1,4}/g)?.join('-') || code;
+                    console.log(chalk.black(chalk.bgGreen('Your Pairing Code : ')), chalk.black(chalk.bgWhite(code)));
+                } catch (e) {
+                    console.error('Error requesting pairing code:', e);
+                }
             }, 3000);
         } else {
             console.log(chalk.red('Please set global.numberowner in config.js to use automatic pairing code.'));
@@ -186,18 +194,25 @@ async function start() {
         }
     });
 
-    const pluginsFolder = path.join(__dirname, 'plugins');
-    global.plugins = {};
-    for (let filename of fs.readdirSync(pluginsFolder).filter(v => v.endsWith('.js'))) {
-        try {
-            global.plugins[filename] = require(path.join(pluginsFolder, filename));
-        } catch (e) {
-            console.error(`Error loading plugin ${filename}:`, e);
+    if (!global.plugins) {
+        const pluginsFolder = path.join(__dirname, 'plugins');
+        global.plugins = {};
+        for (let filename of fs.readdirSync(pluginsFolder).filter(v => v.endsWith('.js'))) {
+            try {
+                global.plugins[filename] = require(path.join(pluginsFolder, filename));
+            } catch (e) {
+                console.error(`Error loading plugin ${filename}:`, e);
+            }
         }
+        global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b)));
+        console.log(chalk.yellow(`Found ${Object.keys(global.plugins).length} plugins`));
     }
-    global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b)));
-    console.log(chalk.yellow(`Found ${Object.keys(global.plugins).length} plugins`));
+}
 
+start();
+
+if (!global.intervalSet) {
+    global.intervalSet = true;
     setInterval(async () => {
         if (global.db.data) await global.db.write();
         if (global.opts['autocleartmp']) {
@@ -207,15 +222,15 @@ async function start() {
                     if (file !== '.gitignore') {
                         const filePath = path.join(tmpDir, file);
                         const stats = fs.statSync(filePath);
-                        if (Date.now() - stats.mtimeMs > 1000 * 60 * 3) fs.unlinkSync(filePath);
+                        if (Date.now() - stats.mtimeMs > 1000 * 60 * 3) {
+                            fs.unlinkSync(filePath);
+                        }
                     }
                 }
             }
         }
-    }, 30 * 1000);
+    }, 60 * 1000); // Increased to 60s for better performance
 }
-
-start();
 
 process.on('uncaughtException', console.error);
 process.on('unhandledRejection', console.error);

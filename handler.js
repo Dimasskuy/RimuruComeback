@@ -11,12 +11,28 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, m
 const initializedUsers = new Set();
 const initializedChats = new Set();
 
+// Categorize plugins once to save CPU
+let categorizedPlugins = { all: [], before: [], command: [] };
+function categorizePlugins() {
+    categorizedPlugins = { all: [], before: [], command: [] };
+    for (let name in global.plugins) {
+        let plugin = global.plugins[name];
+        if (!plugin || plugin.disabled) continue;
+        if (typeof plugin.all === 'function') categorizedPlugins.all.push(plugin);
+        if (typeof plugin.before === 'function') categorizedPlugins.before.push(plugin);
+        if (typeof plugin === 'function') categorizedPlugins.command.push({ name, plugin });
+    }
+}
+
 module.exports = {
     async handler(chatUpdate) {
         if (global.db.data == null) await global.loadDatabase();
         this.msgqueque = this.msgqueque || [];
         if (!chatUpdate) return;
-        if (chatUpdate.messages.length > 1) console.log(chatUpdate.messages);
+
+        // Categorize if not done yet or if plugins changed
+        if (categorizedPlugins.command.length === 0) categorizePlugins();
+
         let m = chatUpdate.messages[chatUpdate.messages.length - 1];
         if (!m) return;
 
@@ -31,21 +47,15 @@ module.exports = {
                 if (!global.db.data.users) global.db.data.users = {};
                 if (!global.db.data.chats) global.db.data.chats = {};
 
-                // Resolve LID if possible using existing data
-                if (m.sender.endsWith('@lid') && global.db.data.isLid?.[m.sender]) {
-                    m.sender = global.db.data.isLid[m.sender];
-                }
-
                 // Optimize User Data Initialization
                 let user = global.db.data.users[m.sender];
-                if (typeof user !== 'object') global.db.data.users[m.sender] = {};
-                user = global.db.data.users[m.sender];
+                if (!user || typeof user !== 'object') {
+                    user = global.db.data.users[m.sender] = { ...schema.userDefaults };
+                }
                 
-                if (user && !initializedUsers.has(m.sender)) {
+                if (!initializedUsers.has(m.sender)) {
                     for (let key in schema.userDefaults) {
-                        let val = schema.userDefaults[key];
-                        if (!(key in user)) user[key] = val;
-                        else if (typeof val === 'number' && (typeof user[key] !== 'number' || isNaN(user[key]))) user[key] = val;
+                        if (!(key in user)) user[key] = schema.userDefaults[key];
                     }
                     if (!user.name) user.name = m.name || this.getName(m.sender);
                     initializedUsers.add(m.sender);
@@ -53,14 +63,13 @@ module.exports = {
 
                 // Optimize Chat Data Initialization
                 let chat = global.db.data.chats[m.chat];
-                if (typeof chat !== 'object') global.db.data.chats[m.chat] = {};
-                chat = global.db.data.chats[m.chat];
+                if (!chat || typeof chat !== 'object') {
+                    chat = global.db.data.chats[m.chat] = { ...schema.chatDefaults };
+                }
                 
-                if (chat && !initializedChats.has(m.chat)) {
+                if (!initializedChats.has(m.chat)) {
                     for (let key in schema.chatDefaults) {
-                        let val = schema.chatDefaults[key];
-                        if (!(key in chat)) chat[key] = val;
-                        else if (typeof val === 'number' && (typeof chat[key] !== 'number' || isNaN(chat[key]))) chat[key] = val;
+                        if (!(key in chat)) chat[key] = schema.chatDefaults[key];
                     }
                     initializedChats.add(m.chat);
                 }
@@ -98,16 +107,12 @@ module.exports = {
                 await delay(Math.min(this.msgqueque.length, 10) * 500);
             }
 
-            // Plugin execution
-            for (let name in global.plugins) {
-                let plugin = global.plugins[name];
-                if (!plugin || plugin.disabled) continue;
-                if (typeof plugin.all === 'function') {
-                    try {
-                        await plugin.all.call(this, m, chatUpdate);
-                    } catch (e) {
-                        if (typeof e !== 'string') console.error(e);
-                    }
+            // Plugin execution - all
+            for (let plugin of categorizedPlugins.all) {
+                try {
+                    await plugin.all.call(this, m, chatUpdate);
+                } catch (e) {
+                    if (typeof e !== 'string') console.error(e);
                 }
             }
 
@@ -147,12 +152,11 @@ module.exports = {
             const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
             const isBotAdmin = bot?.admin || false;
 
-            for (let name in global.plugins) {
-                let plugin = global.plugins[name];
-                if (!plugin || plugin.disabled) continue;
-                if (!opts['restrict'] && plugin.tags && plugin.tags.includes('admin')) continue;
+            const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 
-                const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+            // Plugin execution - before
+            let isSkipped = false;
+            for (let plugin of categorizedPlugins.before) {
                 let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
                 let match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
                     Array.isArray(_prefix) ? _prefix.map(p => {
@@ -161,14 +165,28 @@ module.exports = {
                     }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
                 ).find(p => p[1]);
 
-                if (typeof plugin.before === 'function') {
-                    if (await plugin.before.call(this, m, {
-                        match, conn: this, participants, groupMetadata, user, bot,
-                        isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
-                    })) continue;
+                if (await plugin.before.call(this, m, {
+                    match, conn: this, participants, groupMetadata, user, bot,
+                    isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
+                })) {
+                    isSkipped = true;
+                    break;
                 }
+            }
+            if (isSkipped) return;
 
-                if (typeof plugin !== 'function') continue;
+            // Plugin execution - command
+            for (let { name, plugin } of categorizedPlugins.command) {
+                if (!opts['restrict'] && plugin.tags && plugin.tags.includes('admin')) continue;
+
+                let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
+                let match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
+                    Array.isArray(_prefix) ? _prefix.map(p => {
+                        let re = p instanceof RegExp ? p : new RegExp(str2Regex(p));
+                        return [re.exec(m.text), re];
+                    }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
+                ).find(p => p[1]);
+
                 if ((usedPrefix = (match[0] || '')[0])) {
                     let noPrefix = m.text.replace(usedPrefix, '');
                     let [command, ...args] = noPrefix.trim().split` `.filter(v => v);
@@ -236,13 +254,13 @@ module.exports = {
                         console.error(e);
                         if (e) {
                             let text = util.format(e);
-                            m.reply(text);
+                            if (this.ws.readyState === 1) m.reply(text);
                         }
                     } finally {
                         if (typeof plugin.after === 'function') {
                             try { await plugin.after.call(this, m, extra); } catch (e) { console.error(e); }
                         }
-                        if (m.limit) m.reply(+m.limit + ' Limit terpakai');
+                        if (m.limit && this.ws.readyState === 1) m.reply(+m.limit + ' Limit terpakai');
                     }
                     break;
                 }
@@ -283,7 +301,7 @@ module.exports = {
         if (global.isInit) return;
         let chat = global.db.data.chats[id] || {};
         if (!chat.welcome) return;
-        let groupMetadata = await this.groupMetadata(id).catch(() => null);
+        let groupMetadata = (this.chats[id] || {}).metadata || await this.groupMetadata(id).catch(() => null);
         if (!groupMetadata) return;
 
         for (let user of participants) {
@@ -295,7 +313,9 @@ module.exports = {
                 .replace('@desc', groupMetadata.desc?.toString() || '')
                 .replace('@user', '@' + jid.split('@')[0]);
 
-            await this.sendMessage(id, { text, mentions: [jid] });
+            if (this.ws.readyState === 1) {
+                await this.sendMessage(id, { text, mentions: [jid] }).catch(console.error);
+            }
         }
     },
 

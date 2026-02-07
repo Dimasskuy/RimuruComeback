@@ -11,17 +11,18 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, m
 const initializedUsers = new Set();
 const initializedChats = new Set();
 
-// Categorize plugins once to save CPU
-let categorizedPlugins = { all: [], before: [], command: [] };
-let pluginCount = 0;
-function categorizePlugins() {
-    categorizedPlugins = { all: [], before: [], command: [] };
+// Optimize plugin list for faster looping
+let allHandlers = [];
+let commandHandlers = [];
+let lastPluginCount = 0;
+function updateOptimizedPlugins() {
+    allHandlers = [];
+    commandHandlers = [];
     for (let name in global.plugins) {
         let plugin = global.plugins[name];
         if (!plugin || plugin.disabled) continue;
-        if (typeof plugin.all === 'function') categorizedPlugins.all.push(plugin);
-        if (typeof plugin.before === 'function') categorizedPlugins.before.push(plugin);
-        if (typeof plugin === 'function') categorizedPlugins.command.push({ name, plugin });
+        if (typeof plugin.all === 'function') allHandlers.push({ name, plugin });
+        commandHandlers.push({ name, plugin });
     }
 }
 
@@ -31,11 +32,11 @@ module.exports = {
         this.msgqueque = this.msgqueque || [];
         if (!chatUpdate) return;
 
-        // Categorize if not done yet or if plugins changed
+        // Hot-reload optimized list if needed
         const currentPluginCount = Object.keys(global.plugins || {}).length;
-        if (categorizedPlugins.command.length === 0 || pluginCount !== currentPluginCount) {
-            categorizePlugins();
-            pluginCount = currentPluginCount;
+        if (commandHandlers.length === 0 || lastPluginCount !== currentPluginCount) {
+            updateOptimizedPlugins();
+            lastPluginCount = currentPluginCount;
         }
 
         let m = chatUpdate.messages[chatUpdate.messages.length - 1];
@@ -86,9 +87,9 @@ module.exports = {
 
                 // Optimize Member GC Data
                 if (m.isGroup) {
-                    let memgc = chat.memgc?.[m.sender];
+                    if (!chat.memgc) chat.memgc = {};
+                    let memgc = chat.memgc[m.sender];
                     if (typeof memgc !== 'object' || memgc === null) {
-                        chat.memgc = chat.memgc || {};
                         chat.memgc[m.sender] = {
                             blacklist: false,
                             banned: false,
@@ -117,8 +118,8 @@ module.exports = {
                 await delay(Math.min(this.msgqueque.length, 10) * 500);
             }
 
-            // Plugin execution - all
-            for (let plugin of categorizedPlugins.all) {
+            // Run "all" handlers
+            for (let { plugin } of allHandlers) {
                 try {
                     await plugin.all.call(this, m, chatUpdate);
                 } catch (e) {
@@ -126,13 +127,13 @@ module.exports = {
                 }
             }
 
-            if (m.id.startsWith('3EB0') || (m.id.startsWith('BAE5') && m.id.length === 16 || m.isBaileys && m.fromMe)) return;
+            if ((m.id.startsWith('3EB0') || (m.id.startsWith('BAE5') && m.id.length === 16) || m.isBaileys) && m.fromMe) return;
             m.exp += Math.ceil(Math.random() * 10);
 
             let usedPrefix;
             let _user = global.db.data.users[m.sender];
 
-            // Fixed Robust Owner Detection
+            // Robust Owner Detection
             const senderJid = m.sender;
             const ownerList = [
                 this.decodeJid(this.user.id),
@@ -157,47 +158,44 @@ module.exports = {
 
             const groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
             const participants = (m.isGroup ? groupMetadata.participants : []) || [];
-            const user = (m.isGroup ? participants.find((u) => this.getJid(u.id) === this.getJid(m.sender)) : {}) || {};
-            const bot = (m.isGroup ? participants.find((u) => this.getJid(u.id) == this.decodeJid(this.user.id)) : {}) || {};
+
+            const decodedSender = m.sender;
+            const decodedBot = this.decodeJid(this.user.id);
+            const user = m.isGroup ? (participants.find(u => this.decodeJid(u.id) === decodedSender || u.lid === decodedSender) || {}) : {};
+            const bot = m.isGroup ? (participants.find(u => this.decodeJid(u.id) === decodedBot) || {}) : {};
+
             const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
             const isBotAdmin = bot?.admin || false;
 
             const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+            const globalPrefixMatch = global.prefix.exec(m.text);
 
-            // Plugin execution - before
-            let isSkipped = false;
-            for (let plugin of categorizedPlugins.before) {
-                let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
-                let match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
-                    Array.isArray(_prefix) ? _prefix.map(p => {
-                        let re = p instanceof RegExp ? p : new RegExp(str2Regex(p));
-                        return [re.exec(m.text), re];
-                    }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
-                ).find(p => p[1]);
-
-                if (await plugin.before.call(this, m, {
-                    match, conn: this, participants, groupMetadata, user, bot,
-                    isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
-                })) {
-                    isSkipped = true;
-                    break;
-                }
-            }
-            if (isSkipped) return;
-
-            // Plugin execution - command
-            for (let { name, plugin } of categorizedPlugins.command) {
+            for (let { name, plugin } of commandHandlers) {
                 if (!opts['restrict'] && plugin.tags && plugin.tags.includes('admin')) continue;
 
-                let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
-                let match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
-                    Array.isArray(_prefix) ? _prefix.map(p => {
-                        let re = p instanceof RegExp ? p : new RegExp(str2Regex(p));
-                        return [re.exec(m.text), re];
-                    }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
-                ).find(p => p[1]);
+                let match;
+                if (plugin.customPrefix) {
+                    let _prefix = plugin.customPrefix;
+                    match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
+                        Array.isArray(_prefix) ? _prefix.map(p => {
+                            let re = p instanceof RegExp ? p : new RegExp(str2Regex(p));
+                            return [re.exec(m.text), re];
+                        }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
+                    ).find(p => p[0]);
+                } else {
+                    match = [globalPrefixMatch, global.prefix];
+                }
 
-                if ((usedPrefix = (match[0] || '')[0])) {
+                if (typeof plugin.before === 'function') {
+                    if (await plugin.before.call(this, m, {
+                        match, conn: this, participants, groupMetadata, user, bot,
+                        isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
+                    })) continue;
+                }
+
+                if (typeof plugin !== 'function') continue;
+
+                if (match && (usedPrefix = (match[0] || '')[0])) {
                     let noPrefix = m.text.replace(usedPrefix, '');
                     let [command, ...args] = noPrefix.trim().split` `.filter(v => v);
                     args = args || [];

@@ -271,25 +271,23 @@ let handler = async (m, { conn, usedPrefix: _p, args = [] }) => {
         let text = menuCategory.replace(new RegExp(`%(${Object.keys(replace).sort((a, b) => b.length - a.length).join`|`})`, 'g'),
             (_, name) => '' + replace[name]);
 
-        if (conn.ws && conn.ws.readyState === 1) {
-            await conn.relayMessage(m.chat, {
-                extendedTextMessage: {
-                    text: text,
-                    contextInfo: {
-                        mentionedJid: [m.sender],
-                        externalAdReply: {
-                            title: ucapan(),  // Menggunakan ucapan yang tepat
-                            mediaType: 1,
-                            previewType: 0,
-                            renderLargerThumbnail: true,
-                            thumbnailUrl: 'https://i.pinimg.com/736x/ec/63/bd/ec63bd973d649637c460f84c717b307d.jpg',
-                            sourceUrl: 'https://whatsapp.com/channel/0029VaCvaNgBPzjcfrTixA1U'
-                        }
-                    },
-                    mentions: [m.sender]
-                }
-            }, {}).catch(console.error);
-        }
+        await conn.relayMessage(m.chat, {
+            extendedTextMessage: {
+                text: text,
+                contextInfo: {
+                    mentionedJid: [m.sender],
+                    externalAdReply: {
+                        title: ucapan(),  // Menggunakan ucapan yang tepat
+                        mediaType: 1,
+                        previewType: 0,
+                        renderLargerThumbnail: true,
+                        thumbnailUrl: 'https://i.pinimg.com/736x/ec/63/bd/ec63bd973d649637c460f84c717b307d.jpg',
+                        sourceUrl: 'https://whatsapp.com/channel/0029VaCvaNgBPzjcfrTixA1U'
+                    }
+                },
+                mentions: [m.sender]
+            }
+        }, {}).catch(console.error);
     } catch (e) {
         conn.reply(m.chat, 'Maaf, menu sedang error', m);
         console.error(e);

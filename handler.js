@@ -54,8 +54,7 @@ module.exports = {
 
                 // Resolve LID if possible using existing data
                 if (m.sender.endsWith('@lid')) {
-                    const jid = global.db.data.isLid?.[m.sender] || this.getJid(m.sender);
-                    if (jid && jid !== m.sender) m.sender = jid;
+                    m.sender = this.getJid(m.sender);
                 }
 
                 // Optimize User Data Initialization
@@ -265,13 +264,13 @@ module.exports = {
                         console.error(e);
                         if (e) {
                             let text = util.format(e);
-                            if (this.ws && this.ws.readyState === 1) m.reply(text);
+                            m.reply(text);
                         }
                     } finally {
                         if (typeof plugin.after === 'function') {
                             try { await plugin.after.call(this, m, extra); } catch (e) { console.error(e); }
                         }
-                        if (m.limit && this.ws && this.ws.readyState === 1) m.reply(+m.limit + ' Limit terpakai');
+                        if (m.limit) m.reply(+m.limit + ' Limit terpakai');
                     }
                     break;
                 }
@@ -324,9 +323,7 @@ module.exports = {
                 .replace('@desc', groupMetadata.desc?.toString() || '')
                 .replace('@user', '@' + jid.split('@')[0]);
 
-            if (this.ws && this.ws.readyState === 1) {
-                await this.sendMessage(id, { text, mentions: [jid] }).catch(console.error);
-            }
+            await this.sendMessage(id, { text, mentions: [jid] }).catch(console.error);
         }
     },
 

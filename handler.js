@@ -46,6 +46,11 @@ module.exports = {
             m = simple.smsg(this, m) || m;
             if (!m) return;
             if (m.mtype === 'protocolMessage' || m.mtype === 'senderKeyDistributionMessage' || !m.text && !m.quoted && !m.msg?.fileSha256) return;
+
+            // Critical: Resolve LID to phone number JID immediately
+            const sender = this.getJid(m.sender);
+            if (sender && sender !== m.sender) m.sender = sender;
+
             m.exp = 0;
             m.limit = false;
 
@@ -54,12 +59,7 @@ module.exports = {
                 if (!global.db.data.users) global.db.data.users = {};
                 if (!global.db.data.chats) global.db.data.chats = {};
 
-                // Resolve LID if possible using existing data
-                if (m.sender.endsWith('@lid')) {
-                    m.sender = this.getJid(m.sender);
-                }
-
-                // Optimize User Data Initialization
+                // Optimized and Repair-safe User Data Initialization
                 let user = global.db.data.users[m.sender];
                 if (!user || typeof user !== 'object') {
                     user = global.db.data.users[m.sender] = { ...schema.userDefaults };
@@ -67,13 +67,18 @@ module.exports = {
                 
                 if (!initializedUsers.has(m.sender)) {
                     for (let key in schema.userDefaults) {
-                        if (!(key in user)) user[key] = schema.userDefaults[key];
+                        const defaultValue = schema.userDefaults[key];
+                        if (!(key in user) || (typeof defaultValue === 'number' && (typeof user[key] !== 'number' || isNaN(user[key])))) {
+                            user[key] = defaultValue;
+                        }
                     }
-                    if (!user.name) user.name = m.name || this.getName(m.sender);
+                    if (!user.name || /^[0-9]+$/.test(user.name)) {
+                        user.name = m.name || this.getName(m.sender);
+                    }
                     initializedUsers.add(m.sender);
                 }
 
-                // Optimize Chat Data Initialization
+                // Optimized and Repair-safe Chat Data Initialization
                 let chat = global.db.data.chats[m.chat];
                 if (!chat || typeof chat !== 'object') {
                     chat = global.db.data.chats[m.chat] = { ...schema.chatDefaults };
@@ -81,7 +86,10 @@ module.exports = {
                 
                 if (!initializedChats.has(m.chat)) {
                     for (let key in schema.chatDefaults) {
-                        if (!(key in chat)) chat[key] = schema.chatDefaults[key];
+                        const defaultValue = schema.chatDefaults[key];
+                        if (!(key in chat) || (typeof defaultValue === 'number' && (typeof chat[key] !== 'number' || isNaN(chat[key])))) {
+                            chat[key] = defaultValue;
+                        }
                     }
                     initializedChats.add(m.chat);
                 }
@@ -163,8 +171,8 @@ module.exports = {
             // Super-fast User/Bot lookup in group using pre-decoded IDs
             const decodedSender = m.sender;
             const decodedBot = this.decodeJid(this.user.id);
-            const user = m.isGroup ? (participants.find(u => u.decodedId === decodedSender || u.lid === decodedSender || u.id === decodedSender) || {}) : {};
-            const bot = m.isGroup ? (participants.find(u => u.decodedId === decodedBot || u.id === decodedBot) || {}) : {};
+            const user = m.isGroup ? (participants.find(u => this.decodeJid(u.id) === decodedSender || u.lid === decodedSender) || {}) : {};
+            const bot = m.isGroup ? (participants.find(u => this.decodeJid(u.id) === decodedBot) || {}) : {};
 
             const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
             const isBotAdmin = bot?.admin || false;
@@ -285,8 +293,9 @@ module.exports = {
                 let user, stats = global.db.data?.stats;
                 if (m && global.db.data) {
                     if (m.sender && (user = global.db.data.users?.[m.sender])) {
-                    user.exp += m.exp;
-                    user.limit -= m.limit * 1;
+                    if (typeof m.exp === 'number' && !isNaN(m.exp)) user.exp += m.exp;
+                    if (typeof m.limit === 'number' && !isNaN(m.limit)) user.limit -= m.limit;
+                    else if (m.limit === true) user.limit -= 1;
                 }
 
                     if (m.plugin && stats) {

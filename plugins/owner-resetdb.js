@@ -36,7 +36,7 @@ handler.before = async function (m) {
                 }
             }, 60000)
             return m.reply('🚨 *KONFIRMASI TERAKHIR* 🚨\n\nApakah Anda benar-benar yakin? Semua data akan hilang selamanya.\n\nKetik *KONFIRMASI* untuk menghapus sekarang.')
-        } else if (m.text && !m.isCommand) {
+        } else if (m.text && !m.isCommand && !/^(resetdb|resetdatabase)$/i.test(m.text)) {
             clearTimeout(session.timeout)
             delete this.resetdb[sender]
             return m.reply('Reset database dibatalkan.')
@@ -58,7 +58,7 @@ handler.before = async function (m) {
 
             await global.db.write()
             return m.reply('✅ *Database Berhasil Direset Total!*')
-        } else if (m.text && !m.isCommand) {
+        } else if (m.text && !m.isCommand && !/^(resetdb|resetdatabase)$/i.test(m.text)) {
             clearTimeout(session.timeout)
             delete this.resetdb[sender]
             return m.reply('Reset database dibatalkan karena konfirmasi salah.')

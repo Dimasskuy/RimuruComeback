@@ -153,12 +153,12 @@ module.exports = {
 
             let isROwner = ownerList.includes(senderJid.replace(/[^0-9]/g, '') + '@s.whatsapp.net') ||
                           ownerList.includes(this.decodeJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net') ||
-                          global.owner.some(v => v.replace(/[^0-9]/g, '') === m.sender.split('@')[0]) ||
-                          global.owner.some(v => v.replace(/[^0-9]/g, '') === senderJid.split('@')[0])
+                          global.owner.some(v => v.replace(/[^0-9]/g, '') === (m.sender || '').split('@')[0]) ||
+                          global.owner.some(v => v.replace(/[^0-9]/g, '') === (senderJid || '').split('@')[0])
 
             let isOwner = isROwner || m.fromMe;
-            let isMods = isOwner || global.mods.some(v => v.replace(/[^0-9]/g, '') === m.sender.split('@')[0]) || global.mods.some(v => v.replace(/[^0-9]/g, '') === senderJid.split('@')[0]);
-            let isPrems = isROwner || global.prems.some(v => v.replace(/[^0-9]/g, '') === m.sender.split('@')[0]) || global.prems.some(v => v.replace(/[^0-9]/g, '') === senderJid.split('@')[0]) || (_user.premiumTime > 0 || _user.premium);
+            let isMods = isOwner || global.mods.some(v => v.replace(/[^0-9]/g, '') === (m.sender || '').split('@')[0]) || global.mods.some(v => v.replace(/[^0-9]/g, '') === (senderJid || '').split('@')[0]);
+            let isPrems = isROwner || global.prems.some(v => v.replace(/[^0-9]/g, '') === (m.sender || '').split('@')[0]) || global.prems.some(v => v.replace(/[^0-9]/g, '') === (senderJid || '').split('@')[0]) || (_user.premiumTime > 0 || _user.premium);
 
             m.isROwner = isROwner
             m.isOwner = isOwner
@@ -192,48 +192,45 @@ module.exports = {
 
             const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 
-            // Optimized 'before' plugins
-            let skipCommand = false;
-            const beforePlugins = global.categorizedPlugins?.before || [];
-            for (let name of beforePlugins) {
+            // Optimized 'before' plugins (those without main function/command)
+            const beforeOnlyPlugins = (global.categorizedPlugins?.before || []).filter(name => !global.categorizedPlugins.command.includes(name));
+            for (let name of beforeOnlyPlugins) {
                 let plugin = global.plugins[name];
                 if (!plugin || plugin.disabled) continue;
                 if (!opts['restrict'] && plugin.tags && plugin.tags.includes('admin')) continue;
-
-                let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
-                let match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
-                    Array.isArray(_prefix) ? _prefix.map(p => {
-                        let re = p instanceof RegExp ? p : new RegExp(str2Regex(p));
-                        return [re.exec(m.text), re];
-                    }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
-                ).find(p => p[1]);
 
                 if (typeof plugin.before === 'function' && await plugin.before.call(this, m, {
-                    match, conn: this, participants, groupMetadata, user, bot,
+                    match: [[null, null]], conn: this, participants, groupMetadata, user, bot,
                     isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
-                })) {
-                    skipCommand = true;
-                }
+                })) break;
             }
-            if (skipCommand) return;
 
-            // Optimized command plugins
-            const commandPlugins = global.categorizedPlugins?.command || [];
-            for (let name of commandPlugins) {
+            // Consolidated Plugin Loop
+            const pluginsToRun = global.categorizedPlugins?.command || [];
+            for (let name of pluginsToRun) {
                 let plugin = global.plugins[name];
                 if (!plugin || plugin.disabled) continue;
                 if (!opts['restrict'] && plugin.tags && plugin.tags.includes('admin')) continue;
 
-                let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
-                let match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
+                const _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
+                const match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
                     Array.isArray(_prefix) ? _prefix.map(p => {
                         let re = p instanceof RegExp ? p : new RegExp(str2Regex(p));
                         return [re.exec(m.text), re];
                     }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
                 ).find(p => p[1]);
 
+                // Run 'before' handler if exists
+                if (typeof plugin.before === 'function') {
+                    if (await plugin.before.call(this, m, {
+                        match, conn: this, participants, groupMetadata, user, bot,
+                        isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
+                    })) continue; // Skip command part of THIS plugin if before returns true
+                }
+
+                // If it's a command, try to match and run
                 const regexMatch = match[0];
-                if (regexMatch && (usedPrefix = regexMatch[0])) {
+                if (typeof plugin === 'function' && regexMatch && (usedPrefix = regexMatch[0])) {
                     let noPrefix = m.text.replace(usedPrefix, '');
                     let [command, ...args] = noPrefix.trim().split` `.filter(v => v);
                     args = args || [];

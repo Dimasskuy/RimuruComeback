@@ -1,15 +1,16 @@
 let handler = async (m, { conn }) => {
+    const sender = conn.getJid(m.sender);
     conn.resetdb = conn.resetdb ? conn.resetdb : {}
-    if (m.sender in conn.resetdb) return
+    if (sender in conn.resetdb) return
 
-    conn.resetdb[m.sender] = {
+    conn.resetdb[sender] = {
         status: 'waiting_1',
         timeout: setTimeout(() => {
-            if (conn.resetdb[m.sender]) {
+            if (conn.resetdb[sender]) {
                 m.reply('Waktu konfirmasi reset database telah habis.')
-                delete conn.resetdb[m.sender]
+                delete conn.resetdb[sender]
             }
-        }, 30000)
+        }, 60000)
     }
 
     m.reply('⚠️ *PERINGATAN!* ⚠️\n\nAnda akan menghapus SELURUH database (Users, Chats, Stats, Mappings).\nTindakan ini tidak dapat dibatalkan.\n\nKetik *YA* untuk melanjutkan ke tahap konfirmasi berikutnya.')
@@ -17,33 +18,35 @@ let handler = async (m, { conn }) => {
 
 handler.before = async function (m) {
     this.resetdb = this.resetdb ? this.resetdb : {}
-    if (!(m.sender in this.resetdb)) return
+    const sender = this.getJid(m.sender);
+    if (!(sender in this.resetdb)) return
     if (m.isBaileys) return
 
-    let session = this.resetdb[m.sender]
+    let session = this.resetdb[sender]
+    let text = (m.text || '').trim().toUpperCase()
 
     if (session.status === 'waiting_1') {
-        if (m.text.toUpperCase() === 'YA') {
+        if (text === 'YA' || text.endsWith('\nYA')) {
             clearTimeout(session.timeout)
             session.status = 'waiting_2'
             session.timeout = setTimeout(() => {
-                if (this.resetdb[m.sender]) {
+                if (this.resetdb[sender]) {
                     m.reply('Waktu konfirmasi reset database telah habis.')
-                    delete this.resetdb[m.sender]
+                    delete this.resetdb[sender]
                 }
-            }, 30000)
+            }, 60000)
             return m.reply('🚨 *KONFIRMASI TERAKHIR* 🚨\n\nApakah Anda benar-benar yakin? Semua data akan hilang selamanya.\n\nKetik *KONFIRMASI* untuk menghapus sekarang.')
-        } else if (m.text) {
+        } else if (m.text && !m.isCommand) {
             clearTimeout(session.timeout)
-            delete this.resetdb[m.sender]
+            delete this.resetdb[sender]
             return m.reply('Reset database dibatalkan.')
         }
     }
 
     if (session.status === 'waiting_2') {
-        if (m.text.toUpperCase() === 'KONFIRMASI') {
+        if (text === 'KONFIRMASI' || text.endsWith('\nKONFIRMASI')) {
             clearTimeout(session.timeout)
-            delete this.resetdb[m.sender]
+            delete this.resetdb[sender]
 
             global.db.data.users = {}
             global.db.data.chats = {}
@@ -55,9 +58,9 @@ handler.before = async function (m) {
 
             await global.db.write()
             return m.reply('✅ *Database Berhasil Direset Total!*')
-        } else if (m.text) {
+        } else if (m.text && !m.isCommand) {
             clearTimeout(session.timeout)
-            delete this.resetdb[m.sender]
+            delete this.resetdb[sender]
             return m.reply('Reset database dibatalkan karena konfirmasi salah.')
         }
     }

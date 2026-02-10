@@ -153,11 +153,12 @@ module.exports = {
 
             let isROwner = ownerList.includes(senderJid.replace(/[^0-9]/g, '') + '@s.whatsapp.net') ||
                           ownerList.includes(this.decodeJid(m.sender).replace(/[^0-9]/g, '') + '@s.whatsapp.net') ||
-                          global.owner.some(v => v.replace(/[^0-9]/g, '') === m.sender.split('@')[0])
+                          global.owner.some(v => v.replace(/[^0-9]/g, '') === m.sender.split('@')[0]) ||
+                          global.owner.some(v => v.replace(/[^0-9]/g, '') === senderJid.split('@')[0])
 
             let isOwner = isROwner || m.fromMe;
-            let isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(senderJid.replace(/[^0-9]/g, '') + '@s.whatsapp.net');
-            let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(senderJid.replace(/[^0-9]/g, '') + '@s.whatsapp.net') || (_user.premiumTime > 0 || _user.premium);
+            let isMods = isOwner || global.mods.some(v => v.replace(/[^0-9]/g, '') === m.sender.split('@')[0]) || global.mods.some(v => v.replace(/[^0-9]/g, '') === senderJid.split('@')[0]);
+            let isPrems = isROwner || global.prems.some(v => v.replace(/[^0-9]/g, '') === m.sender.split('@')[0]) || global.prems.some(v => v.replace(/[^0-9]/g, '') === senderJid.split('@')[0]) || (_user.premiumTime > 0 || _user.premium);
 
             m.isROwner = isROwner
             m.isOwner = isOwner
@@ -192,6 +193,7 @@ module.exports = {
             const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 
             // Optimized 'before' plugins
+            let skipCommand = false;
             const beforePlugins = global.categorizedPlugins?.before || [];
             for (let name of beforePlugins) {
                 let plugin = global.plugins[name];
@@ -209,8 +211,11 @@ module.exports = {
                 if (typeof plugin.before === 'function' && await plugin.before.call(this, m, {
                     match, conn: this, participants, groupMetadata, user, bot,
                     isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
-                })) break;
+                })) {
+                    skipCommand = true;
+                }
             }
+            if (skipCommand) return;
 
             // Optimized command plugins
             const commandPlugins = global.categorizedPlugins?.command || [];
@@ -227,7 +232,8 @@ module.exports = {
                     }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
                 ).find(p => p[1]);
 
-                if ((usedPrefix = (match[0] || '')[0])) {
+                const regexMatch = match[0];
+                if (regexMatch && (usedPrefix = regexMatch[0])) {
                     let noPrefix = m.text.replace(usedPrefix, '');
                     let [command, ...args] = noPrefix.trim().split` `.filter(v => v);
                     args = args || [];

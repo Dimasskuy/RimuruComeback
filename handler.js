@@ -123,16 +123,15 @@ module.exports = {
                 await delay(Math.min(this.msgqueque.length, 10) * 500);
             }
 
-            // Plugin execution
-            for (let name in global.plugins) {
+            // Optimized Plugin execution
+            const allPlugins = global.categorizedPlugins?.all || Object.keys(global.plugins).filter(name => typeof global.plugins[name].all === 'function');
+            for (let name of allPlugins) {
                 let plugin = global.plugins[name];
                 if (!plugin || plugin.disabled) continue;
-                if (typeof plugin.all === 'function') {
-                    try {
-                        await plugin.all.call(this, m, chatUpdate);
-                    } catch (e) {
-                        if (typeof e !== 'string') console.error(e);
-                    }
+                try {
+                    await plugin.all.call(this, m, chatUpdate);
+                } catch (e) {
+                    if (typeof e !== 'string') console.error(e);
                 }
             }
 
@@ -143,7 +142,7 @@ module.exports = {
             let _user = global.db.data.users[m.sender];
 
             // Fixed Robust Owner Detection
-            const senderJid = m.sender;
+            const senderJid = this.getJid(m.sender);
             const ownerList = [
                 this.decodeJid(this.user.id),
                 ...global.owner,
@@ -167,17 +166,38 @@ module.exports = {
 
             const groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
             const participants = (m.isGroup ? groupMetadata.participants : []) || [];
-            const user = (m.isGroup ? participants.find((u) => this.getJid(u.id) === this.getJid(m.sender)) : {}) || {};
-            const bot = (m.isGroup ? participants.find((u) => this.getJid(u.id) == this.decodeJid(this.user.id)) : {}) || {};
+
+            // Optimization: Pre-decode JIDs for faster lookup
+            if (m.isGroup && groupMetadata && !groupMetadata._decoded) {
+                for (let p of participants) {
+                    p.decodedId = this.decodeJid(p.id);
+                }
+                groupMetadata._decoded = true;
+            }
+
+            const botJid = this.decodeJid(this.user.id);
+
+            const user = (m.isGroup ? participants.find((u) => (u.decodedId || this.decodeJid(u.id)) === senderJid) : {}) || {};
+
+            // Bot lookup optimization
+            if (m.isGroup && !groupMetadata._botDecoded) {
+                const b = participants.find((u) => (u.decodedId || this.decodeJid(u.id)) === botJid);
+                if (b) groupMetadata._bot = b;
+                groupMetadata._botDecoded = true;
+            }
+            const bot = (m.isGroup ? groupMetadata._bot : {}) || {};
             const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
             const isBotAdmin = bot?.admin || false;
 
-            for (let name in global.plugins) {
+            const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+
+            // Optimized 'before' plugins
+            const beforePlugins = global.categorizedPlugins?.before || [];
+            for (let name of beforePlugins) {
                 let plugin = global.plugins[name];
                 if (!plugin || plugin.disabled) continue;
                 if (!opts['restrict'] && plugin.tags && plugin.tags.includes('admin')) continue;
 
-                const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
                 let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
                 let match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
                     Array.isArray(_prefix) ? _prefix.map(p => {
@@ -186,14 +206,27 @@ module.exports = {
                     }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
                 ).find(p => p[1]);
 
-                if (typeof plugin.before === 'function') {
-                    if (await plugin.before.call(this, m, {
-                        match, conn: this, participants, groupMetadata, user, bot,
-                        isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
-                    })) continue;
-                }
+                if (typeof plugin.before === 'function' && await plugin.before.call(this, m, {
+                    match, conn: this, participants, groupMetadata, user, bot,
+                    isROwner, isOwner, isAdmin, isBotAdmin, isPrems, chatUpdate,
+                })) break;
+            }
 
-                if (typeof plugin !== 'function') continue;
+            // Optimized command plugins
+            const commandPlugins = global.categorizedPlugins?.command || [];
+            for (let name of commandPlugins) {
+                let plugin = global.plugins[name];
+                if (!plugin || plugin.disabled) continue;
+                if (!opts['restrict'] && plugin.tags && plugin.tags.includes('admin')) continue;
+
+                let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
+                let match = (_prefix instanceof RegExp ? [[_prefix.exec(m.text), _prefix]] :
+                    Array.isArray(_prefix) ? _prefix.map(p => {
+                        let re = p instanceof RegExp ? p : new RegExp(str2Regex(p));
+                        return [re.exec(m.text), re];
+                    }) : typeof _prefix === 'string' ? [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] : [[[], new RegExp]]
+                ).find(p => p[1]);
+
                 if ((usedPrefix = (match[0] || '')[0])) {
                     let noPrefix = m.text.replace(usedPrefix, '');
                     let [command, ...args] = noPrefix.trim().split` `.filter(v => v);

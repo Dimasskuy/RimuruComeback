@@ -202,15 +202,28 @@ async function start() {
 
     const pluginsFolder = path.join(__dirname, 'plugins');
     global.plugins = {};
-    for (let filename of fs.readdirSync(pluginsFolder).filter(v => v.endsWith('.js'))) {
-        try {
-            global.plugins[filename] = require(path.join(pluginsFolder, filename));
-        } catch (e) {
-            console.error(`Error loading plugin ${filename}:`, e);
+    global.categorizedPlugins = { all: [], before: [], command: [] };
+
+    const loadPlugins = () => {
+        global.plugins = {};
+        global.categorizedPlugins = { all: [], before: [], command: [] };
+        for (let filename of fs.readdirSync(pluginsFolder).filter(v => v.endsWith('.js'))) {
+            try {
+                const plugin = require(path.join(pluginsFolder, filename));
+                global.plugins[filename] = plugin;
+                if (!plugin || plugin.disabled) continue;
+                if (typeof plugin.all === 'function') global.categorizedPlugins.all.push(filename);
+                if (typeof plugin.before === 'function') global.categorizedPlugins.before.push(filename);
+                if (typeof plugin === 'function' || plugin.command) global.categorizedPlugins.command.push(filename);
+            } catch (e) {
+                console.error(`Error loading plugin ${filename}:`, e);
+            }
         }
-    }
-    global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b)));
-    console.log(chalk.yellow(`Found ${Object.keys(global.plugins).length} plugins`));
+        global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b)));
+        console.log(chalk.yellow(`Found ${Object.keys(global.plugins).length} plugins categorized: All(${global.categorizedPlugins.all.length}), Before(${global.categorizedPlugins.before.length}), Command(${global.categorizedPlugins.command.length})`));
+    };
+    loadPlugins();
+    global.reloadHandler = loadPlugins;
 
     setInterval(async () => {
         if (global.db.data) await global.db.write();

@@ -60,6 +60,8 @@ global.loadDatabase = async function loadDatabase() {
                     stats: {},
                     msgs: {},
                     sticker: {},
+                    isLid: {},
+                    jidToLid: {},
                     ...localData
                 };
                 await global.db.write();
@@ -77,6 +79,8 @@ global.loadDatabase = async function loadDatabase() {
         stats: {},
         msgs: {},
         sticker: {},
+        isLid: {},
+        jidToLid: {},
         ...(global.db.data || {})
     };
     if (!global.db.data.users) global.db.data.users = {};
@@ -84,6 +88,16 @@ global.loadDatabase = async function loadDatabase() {
     if (!global.db.data.stats) global.db.data.stats = {};
     if (!global.db.data.msgs) global.db.data.msgs = {};
     if (!global.db.data.sticker) global.db.data.sticker = {};
+    if (!global.db.data.isLid) global.db.data.isLid = {};
+    if (!global.db.data.jidToLid) global.db.data.jidToLid = {};
+
+    // Reverse populate jidToLid if empty but isLid has data
+    if (Object.keys(global.db.data.isLid).length > 0 && Object.keys(global.db.data.jidToLid).length === 0) {
+        for (let [lid, jid] of Object.entries(global.db.data.isLid)) {
+            global.db.data.jidToLid[jid] = lid;
+        }
+    }
+
     global.db.chain = _.chain(global.db.data);
 };
 loadDatabase();

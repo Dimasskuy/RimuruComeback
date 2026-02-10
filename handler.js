@@ -36,6 +36,19 @@ module.exports = {
                     m.sender = global.db.data.isLid[m.sender];
                 }
 
+                // Identity Merging
+                if (!m.sender.endsWith('@lid')) {
+                    const lid = global.db.data.jidToLid?.[m.sender];
+                    if (lid && global.db.data.users[lid]) {
+                        global.db.data.users[m.sender] = {
+                            ...(global.db.data.users[m.sender] || {}),
+                            ...global.db.data.users[lid]
+                        };
+                        delete global.db.data.users[lid];
+                        console.log(`Merged data from ${lid} to ${m.sender}`);
+                    }
+                }
+
                 // Optimize User Data Initialization
                 let user = global.db.data.users[m.sender];
                 if (typeof user !== 'object') global.db.data.users[m.sender] = {};
@@ -67,6 +80,18 @@ module.exports = {
 
                 // Optimize Member GC Data
                 if (m.isGroup) {
+                    // Identity Merging for Group Members
+                    if (!m.sender.endsWith('@lid')) {
+                        const lid = global.db.data.jidToLid?.[m.sender];
+                        if (lid && chat.memgc?.[lid]) {
+                            chat.memgc[m.sender] = {
+                                ...(chat.memgc[m.sender] || {}),
+                                ...chat.memgc[lid]
+                            };
+                            delete chat.memgc[lid];
+                        }
+                    }
+
                     let memgc = chat.memgc?.[m.sender];
                     if (typeof memgc !== 'object' || memgc === null) {
                         chat.memgc = chat.memgc || {};

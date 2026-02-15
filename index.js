@@ -225,21 +225,24 @@ async function start() {
     loadPlugins();
     global.reloadHandler = loadPlugins;
 
-    setInterval(async () => {
-        if (global.db.data) await global.db.write();
-        if (global.opts['autocleartmp']) {
-            const tmpDir = path.join(__dirname, 'tmp');
-            if (fs.existsSync(tmpDir)) {
-                for (const file of fs.readdirSync(tmpDir)) {
-                    if (file !== '.gitignore') {
-                        const filePath = path.join(tmpDir, file);
-                        const stats = fs.statSync(filePath);
-                        if (Date.now() - stats.mtimeMs > 1000 * 60 * 3) fs.unlinkSync(filePath);
+    if (!global.intervalSet) {
+        setInterval(async () => {
+            if (global.db.data) await global.db.write();
+            if (global.opts['autocleartmp']) {
+                const tmpDir = path.join(__dirname, 'tmp');
+                if (fs.existsSync(tmpDir)) {
+                    for (const file of fs.readdirSync(tmpDir)) {
+                        if (file !== '.gitignore') {
+                            const filePath = path.join(tmpDir, file);
+                            const stats = fs.statSync(filePath);
+                            if (Date.now() - stats.mtimeMs > 1000 * 60 * 3) fs.unlinkSync(filePath);
+                        }
                     }
                 }
             }
-        }
-    }, 30 * 1000);
+        }, 30 * 1000);
+        global.intervalSet = true;
+    }
 }
 
 start();

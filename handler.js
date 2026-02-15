@@ -13,6 +13,8 @@ const initializedChats = new Set();
 
 module.exports = {
     async handler(chatUpdate) {
+        if (initializedUsers.size > 5000) initializedUsers.clear();
+        if (initializedChats.size > 1000) initializedChats.clear();
         if (global.db.data == null) await global.loadDatabase();
         this.msgqueque = this.msgqueque || [];
         if (!chatUpdate) return;
@@ -168,23 +170,23 @@ module.exports = {
             const groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
             const participants = (m.isGroup ? groupMetadata.participants : []) || [];
 
-            // Optimization: Pre-decode JIDs for faster lookup
-            if (m.isGroup && groupMetadata && !groupMetadata._decoded) {
+            // Optimization: Pre-resolve JIDs for faster lookup
+            if (m.isGroup && groupMetadata && !groupMetadata._resolved) {
                 for (let p of participants) {
-                    p.decodedId = this.decodeJid(p.id);
+                    p.resolvedId = this.getJid(p.id);
                 }
-                groupMetadata._decoded = true;
+                groupMetadata._resolved = true;
             }
 
-            const botJid = this.decodeJid(this.user.id);
+            const botJid = this.getJid(this.user.id);
 
-            const user = (m.isGroup ? participants.find((u) => (u.decodedId || this.decodeJid(u.id)) === senderJid) : {}) || {};
+            const user = (m.isGroup ? participants.find((u) => (u.resolvedId || this.getJid(u.id)) === senderJid) : {}) || {};
 
             // Bot lookup optimization
-            if (m.isGroup && !groupMetadata._botDecoded) {
-                const b = participants.find((u) => (u.decodedId || this.decodeJid(u.id)) === botJid);
+            if (m.isGroup && !groupMetadata._botResolved) {
+                const b = participants.find((u) => (u.resolvedId || this.getJid(u.id)) === botJid);
                 if (b) groupMetadata._bot = b;
-                groupMetadata._botDecoded = true;
+                groupMetadata._botResolved = true;
             }
             const bot = (m.isGroup ? groupMetadata._bot : {}) || {};
             const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;

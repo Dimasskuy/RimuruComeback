@@ -65,6 +65,7 @@ module.exports = {
                     if (!user.name) user.name = m.name || this.getName(m.sender);
                     initializedUsers.add(m.sender);
                 }
+                user.lastseen = Date.now();
 
                 // Optimize Chat Data Initialization
                 let chat = global.db.data.chats[m.chat];
@@ -167,30 +168,15 @@ module.exports = {
             m.isMods = isMods
             m.isPrems = isPrems
 
-            const groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
-            const participants = (m.isGroup ? groupMetadata.participants : []) || [];
+            let groupMetadata = (m.isGroup ? (this.chats[m.chat] || {}).metadata || (await this.groupMetadata(m.chat).catch(() => null)) : {}) || {};
+            let participants = (m.isGroup ? groupMetadata.participants : []) || [];
+            const findParticipant = (id) => participants.find((u) => simple.areJidsSameUser(u.id, id) || simple.areJidsSameUser(u.lid || '', id));
 
-            // Optimization: Pre-resolve JIDs for faster lookup
-            if (m.isGroup && groupMetadata && !groupMetadata._resolved) {
-                for (let p of participants) {
-                    p.resolvedId = this.getJid(p.id);
-                }
-                groupMetadata._resolved = true;
-            }
+            let user = (m.isGroup ? findParticipant(m.sender) : {}) || {};
+            let bot = (m.isGroup ? findParticipant(this.user.id) : {}) || {};
 
-            const botJid = this.getJid(this.user.id);
-
-            const user = (m.isGroup ? participants.find((u) => (u.resolvedId || this.getJid(u.id)) === senderJid) : {}) || {};
-
-            // Bot lookup optimization
-            if (m.isGroup && !groupMetadata._botResolved) {
-                const b = participants.find((u) => (u.resolvedId || this.getJid(u.id)) === botJid);
-                if (b) groupMetadata._bot = b;
-                groupMetadata._botResolved = true;
-            }
-            const bot = (m.isGroup ? groupMetadata._bot : {}) || {};
-            const isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
-            const isBotAdmin = bot?.admin || false;
+            let isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
+            let isBotAdmin = bot?.admin == 'superadmin' || bot?.admin == 'admin' || false;
 
             const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 
@@ -267,6 +253,19 @@ module.exports = {
                     if (plugin.mods && !isMods) { global.dfail('mods', m, this); continue; }
                     if (plugin.premium && !isPrems) { global.dfail('premium', m, this); continue; }
                     if (plugin.group && !m.isGroup) { global.dfail('group', m, this); continue; }
+                    if (m.isGroup && ((plugin.botAdmin && !isBotAdmin) || (plugin.admin && !isAdmin))) {
+                        let freshMetadata = await this.groupMetadata(m.chat).catch(() => null);
+                        if (freshMetadata) {
+                            groupMetadata = freshMetadata;
+                            if (this.chats[m.chat]) this.chats[m.chat].metadata = groupMetadata;
+                            participants = groupMetadata.participants || [];
+                            user = findParticipant(m.sender) || {};
+                            bot = findParticipant(this.user.id) || {};
+                            isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
+                            isBotAdmin = bot?.admin == 'superadmin' || bot?.admin == 'admin' || false;
+                        }
+                    }
+
                     if (plugin.botAdmin && !isBotAdmin) { global.dfail('botAdmin', m, this); continue; }
                     if (plugin.admin && !isAdmin) { global.dfail('admin', m, this); continue; }
                     if (plugin.private && m.isGroup) { global.dfail('private', m, this); continue; }

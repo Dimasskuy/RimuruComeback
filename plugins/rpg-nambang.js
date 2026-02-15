@@ -14,8 +14,6 @@ let handler = async (m, { conn }) => {
       let randomaku3 = `${Math.floor(Math.random() * 10)}`
       let randomaku5 = `${Math.floor(Math.random() * 10)}`
 
-      .trim()
-
       let rbrb1 = (randomaku1 * 2)
       let rbrb2 = (randomaku2 * 1) 
       let rbrb3 = (randomaku3 * 1)

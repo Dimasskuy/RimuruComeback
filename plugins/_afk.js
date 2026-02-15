@@ -22,7 +22,7 @@ Dia sedang AFK ${reason ? 'dengan alasan ' + reason : 'tanpa alasan'}
 Selama ${clockString(new Date - afkTime)}
 `.trim())
   }
-  return true
+  return false
 }
 
 

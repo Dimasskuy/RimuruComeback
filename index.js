@@ -228,6 +228,18 @@ async function start() {
     if (!global.intervalSet) {
         setInterval(async () => {
             if (global.db.data) await global.db.write();
+
+            // Prune conn.chats if too large to save memory
+            if (global.conn && global.conn.chats) {
+                const chatIds = Object.keys(global.conn.chats);
+                if (chatIds.length > 1000) {
+                    const toDelete = chatIds.length - 1000;
+                    for (let i = 0; i < toDelete; i++) {
+                        delete global.conn.chats[chatIds[i]];
+                    }
+                }
+            }
+
             if (global.opts['autocleartmp']) {
                 const tmpDir = path.join(__dirname, 'tmp');
                 if (fs.existsSync(tmpDir)) {
@@ -241,6 +253,27 @@ async function start() {
                 }
             }
         }, 30 * 1000);
+
+        // Daily Database Pruning (Inactive Users)
+        setInterval(async () => {
+            if (global.db && global.db.data && global.db.data.users) {
+                const now = Date.now();
+                const oneMonth = 30 * 24 * 60 * 60 * 1000;
+                let pruned = 0;
+                for (let jid in global.db.data.users) {
+                    const user = global.db.data.users[jid];
+                    if (user.lastseen && (now - user.lastseen > oneMonth) && !user.premium && !user.registered) {
+                        delete global.db.data.users[jid];
+                        pruned++;
+                    }
+                }
+                if (pruned > 0) {
+                    console.log(chalk.yellow(`[DB] Pruned ${pruned} inactive users`));
+                    await global.db.write();
+                }
+            }
+        }, 24 * 60 * 60 * 1000);
+
         global.intervalSet = true;
     }
 }

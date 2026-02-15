@@ -1,86 +1,92 @@
-const axios = require('axios');
+const fetch = require('node-fetch');
 
 const mono = (text) => "```" + text + "```";
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) throw mono(`Masukkan Link YouTube!\n\nContoh:\n${usedPrefix}${command} https://youtu.be/xxxx`);
-    if (!text.match(/youtu\.be|youtube\.com/i)) throw mono('URL YouTube tidak valid!');
 
     m.reply(global.wait);
 
-    const headers = {
-        "accept": "*/*",
-        "accept-language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
-        "sec-ch-ua": "\"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\"",
-        "sec-ch-ua-mobile": "?1",
-        "sec-ch-ua-platform": "\"Android\"",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "cross-site",
-        "Referer": "https://id.ytmp3.mobi/",
-        "Referrer-Policy": "strict-origin-when-cross-origin"
-    };
-
-    let initRes = null;
-    let initData = null;
-    let convertRes = null;
-    let convertData = null;
-    let progressRes = null;
-    let info = {};
-
     try {
-        initRes = await axios.get(`https://d.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, { headers, timeout: 10000 });
-        initData = initRes.data;
-
-        const id = text.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1];
-        if (!id) throw new Error('Gagal mendapatkan ID video');
-
-        const convertURL = initData.convertURL + `&v=${id}&f=mp4&_=${Math.random()}`;
-        convertRes = await axios.get(convertURL, { headers, timeout: 10000 });
-        convertData = convertRes.data;
-
-        info = {};
-        for (let i = 0; i < 10; i++) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            try {
-                progressRes = await axios.get(convertData.progressURL, { headers, timeout: 5000 });
-                info = progressRes.data;
-                if (info.progress === 3) break;
-            } catch (e) {
-                // Ignore errors during polling
-            }
-        }
-
-        if (!info.title || !convertData.downloadURL) throw new Error('Konversi gagal atau server sibuk');
-
-        await conn.sendMessage(
-            m.chat,
-            {
-                video: { url: convertData.downloadURL },
-                caption: mono(`🎬 YOUTUBE MP4\n\nJudul: ${info.title}\nLink: ${text}`),
-                mimetype: 'video/mp4'
+        const step1 = await fetch('https://app.ytdown.to/proxy.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36',
+                'Accept': '*/*',
+                'Origin': 'https://app.ytdown.to',
+                'Referer': 'https://app.ytdown.to/id2/',
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            { quoted: m }
-        );
+            body: `url=${encodeURIComponent(text)}`
+        });
 
-    } catch (error) {
-        console.error('YT MP4 Error:', error);
-        throw mono(`Error: ${error.message || 'Gagal download video.'}`);
-    } finally {
-        initRes = null;
-        initData = null;
-        convertRes = null;
-        convertData = null;
-        progressRes = null;
-        info = null;
+        if (!step1.ok) throw `Server error: ${step1.status}`;
+        const videoInfo = await step1.json();
+        if (!videoInfo.api || videoInfo.api.status !== 'ok') throw 'Gagal mengambil info video';
+
+        const { title, mediaItems } = videoInfo.api;
+        const videos = mediaItems.filter(item => item.type === 'Video').slice(0, 1);
+        if (videos.length === 0) throw 'Video tidak tersedia';
+        const bestVideo = videos[0];
+
+        const downloadMedia = async (mediaUrl) => {
+            const step2 = await fetch('https://app.ytdown.to/proxy.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36',
+                    'Accept': '*/*',
+                    'Origin': 'https://app.ytdown.to',
+                    'Referer': 'https://app.ytdown.to/id2/',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `url=${encodeURIComponent(mediaUrl)}`
+            });
+            if (!step2.ok) throw `Download request failed: ${step2.status}`;
+            let downloadStatus = await step2.json();
+            let attempts = 0;
+            while (downloadStatus.api.status === 'queued' && attempts < 30) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                const pollRequest = await fetch('https://app.ytdown.to/proxy.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36',
+                        'Accept': '*/*',
+                        'Origin': 'https://app.ytdown.to',
+                        'Referer': 'https://app.ytdown.to/id2/',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `url=${encodeURIComponent(mediaUrl)}`
+                });
+                if (!pollRequest.ok) throw `Polling failed: ${pollRequest.status}`;
+                downloadStatus = await pollRequest.json();
+                attempts++;
+                if (downloadStatus.api.status === 'completed') break;
+            }
+            if (downloadStatus.api.status !== 'completed') throw 'Download timeout';
+            return downloadStatus.api.fileUrl;
+        };
+
+        const videoUrl = await downloadMedia(bestVideo.mediaUrl);
+
+        await conn.sendMessage(m.chat, {
+            video: { url: videoUrl },
+            mimetype: 'video/mp4',
+            fileName: `${title}.mp4`,
+            caption: mono(`🎥 YOUTUBE MP4\n\nJudul: ${title}`)
+        }, { quoted: m });
+
+    } catch(e) {
+        console.error('YT MP4 Error:', e);
+        throw mono('❌ Gagal YT MP4: ' + (e.message || 'Terjadi kesalahan'));
     }
 };
 
-handler.help = ['ytmp4 <url>', 'ytv <url>'];
+handler.help = ['ytmp4 <url>'];
 handler.tags = ['downloader'];
-handler.command = /^(ytmp4|ytv|ytm4)$/i;
+handler.command = /^(ytmp4|ytv)$/i;
 handler.limit = true;
-
-
-handler.register = true
+handler.register = true;
 module.exports = handler;

@@ -77,14 +77,17 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
                 if (downloadStatus.api.status === 'completed') break;
             }
             if (downloadStatus.api.status !== 'completed') throw 'Download timeout';
-            return downloadStatus.api.fileUrl;
+
+            const fileRes = await fetch(downloadStatus.api.fileUrl);
+            if (!fileRes.ok) throw 'Gagal mengunduh file audio';
+            return await fileRes.buffer();
         };
 
-        const audioUrl = await downloadMedia(bestAudio.mediaUrl);
+        const audioBuffer = await downloadMedia(bestAudio.mediaUrl);
 
         await conn.sendMessage(m.chat, {
-            audio: { url: audioUrl },
-            mimetype: 'audio/mpeg',
+            audio: audioBuffer,
+            mimetype: 'audio/mp4',
             fileName: `${title}.mp3`,
             contextInfo: { externalAdReply: {
                 title: title,

@@ -16,6 +16,10 @@ let handler = async (m, { conn, usedPrefix, owner }) => {
         let __timers = (new Date - user.lastadventure)
         let _timers = (1200000 - __timers) // 20 minutes in milliseconds
         let timers = clockString(_timers)
+
+        if (typeof user.story_chapter !== 'number') user.story_chapter = 0
+        if (user.story_chapter < 5) return m.reply(`Maaf, kamu belum bisa berpetualang.\nSelesaikan *Story Chapter 5* terlebih dahulu.\nKetik *.story* untuk memulai.`)
+
         if (user.healt > 79) {
             if (new Date - user.lastadventure > 1200000) { // 20 minutes cooldown
                 // Define monsters

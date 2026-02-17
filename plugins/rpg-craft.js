@@ -62,6 +62,9 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
 `.trim();
 
     try {
+        if (typeof user.story_chapter !== 'number') user.story_chapter = 0
+        if (user.story_chapter < 2 && /pickaxe|sword|armor/i.test(type)) return m.reply(`Maaf, kamu belum bisa crafting alat ini.\nSelesaikan *Story Chapter 2* terlebih dahulu.\nKetik *.story* untuk memulai.`)
+
         if (/craft|Crafting|blacksmith/i.test(command)) {
             const count = args[1] && args[1].length > 0 ? Math.min(99999999, Math.max(parseInt(args[1]), 1)) : !args[1] || args.length < 3 ? 1 : Math.min(1, count);
             switch (type) {

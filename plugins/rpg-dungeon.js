@@ -53,6 +53,9 @@ async function handler(m, { conn, usedPrefix, command, text }) {
   global.dungeon = global.dungeon ? global.dungeon : {}
   if (Object.values(global.dungeon).find(room => room.id.startsWith('dungeon') && [room.game.player1, room.game.player2, room.game.player3, room.game.player4].includes(m.sender))) return conn.reply(m.chat, 'Kamu masih di dalam Dungeon', m)// nek iseh neng njero dungeon
 
+  if (typeof user.story_chapter !== 'number') user.story_chapter = 0
+  if (user.story_chapter < 6) return m.reply(`Maaf, kamu belum bisa masuk Dungeon.\nSelesaikan *Story Chapter 6* terlebih dahulu.\nKetik *.story* untuk memulai.`)
+
   if (user.common < 1) return m.reply(`Kamu membutuhkan 1 📦Common Crate sebagai kunci Dungeon.\nDapatkan dari *.adventure*`)
   let timing = (new Date - (user.lastdungeon * 1)) * 1
   if (timing < 2700000) return conn.reply(m.chat, `Silahkan tunggu ${clockString(2700000 - timing)} untuk bisa ke Dungeon`, m)// Cooldown

@@ -4,6 +4,9 @@ let handler = async (m, { conn }) => {
   let timers = clockString(_timers) 
   let name = conn.getName(m.sender)
   let user = global.db.data.users[m.sender]
+
+  if (typeof user.story_chapter !== 'number') user.story_chapter = 0
+  if (user.story_chapter < 3) return m.reply(`Maaf, kamu belum bisa menambang.\nSelesaikan *Story Chapter 3* terlebih dahulu.\nKetik *.story* untuk memulai.`)
   
   if (new Date - global.db.data.users[m.sender].lastnambang > 600000) {
       user.lastnambang = new Date * 1

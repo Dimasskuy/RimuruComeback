@@ -52,8 +52,10 @@ async function handler(m, { conn, usedPrefix, command, text }) {
   }
   global.dungeon = global.dungeon ? global.dungeon : {}
   if (Object.values(global.dungeon).find(room => room.id.startsWith('dungeon') && [room.game.player1, room.game.player2, room.game.player3, room.game.player4].includes(m.sender))) return conn.reply(m.chat, 'Kamu masih di dalam Dungeon', m)// nek iseh neng njero dungeon
+
+  if (user.common < 1) return m.reply(`Kamu membutuhkan 1 📦Common Crate sebagai kunci Dungeon.\nDapatkan dari *.adventure*`)
   let timing = (new Date - (user.lastdungeon * 1)) * 1
-  if (timing < 100) return conn.reply(m.chat, `Silahkan tunggu ${clockString(100 - timing)} untuk bisa ke Dungeon`, m)// Cooldown
+  if (timing < 2700000) return conn.reply(m.chat, `Silahkan tunggu ${clockString(2700000 - timing)} untuk bisa ke Dungeon`, m)// Cooldown
   let room = Object.values(global.dungeon).find(room => room.state === 'WAITING' && (text ? room.name === text : true))
   if (room) {
 
@@ -68,12 +70,15 @@ async function handler(m, { conn, usedPrefix, command, text }) {
     let c4 = room.player4 || ''
 
     if (!p2) {
+      user.common -= 1
       room.player2 = m.chat
       room.game.player2 = m.sender
     } else if (!p3) {
+      user.common -= 1
       room.player3 = m.chat
       room.game.player3 = m.sender
     } else if (!p4) {
+      user.common -= 1
       room.player4 = m.chat
       room.game.player4 = m.sender
       room.state = 'PLAYING'
@@ -316,6 +321,7 @@ Nyawa *${M(p1)}*, *${M(p2)}*, *${M(p3)}* dan *${M(p4)}* masing masing berkurang 
       if (global.dungeon && room.state == 'PLAYING') delete global.dungeon[room.id] //Pastiin lagi kalau masih ada bakal ilang :v
     }
   } else {
+      user.common -= 1
       room = {
           id: 'dungeon-' + (+ new Date),
           player1: m.chat,

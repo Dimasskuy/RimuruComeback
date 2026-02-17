@@ -1,11 +1,11 @@
 let handler = async (m, { conn }) => {
   let __timers = (new Date - global.db.data.users[m.sender].lastnambang)
-  let _timers = (300000 - __timers)
+  let _timers = (600000 - __timers)
   let timers = clockString(_timers) 
   let name = conn.getName(m.sender)
   let user = global.db.data.users[m.sender]
   
-  if (new Date - global.db.data.users[m.sender].lastnambang > 300000) {
+  if (new Date - global.db.data.users[m.sender].lastnambang > 600000) {
       user.lastnambang = new Date * 1
 
       let randomaku1 = `${Math.floor(Math.random() * 10)}`

@@ -173,7 +173,7 @@ module.exports = {
             const findParticipant = (id) => participants.find((u) => simple.areJidsSameUser(u.id, id) || simple.areJidsSameUser(u.lid || '', id));
 
             let user = (m.isGroup ? findParticipant(m.sender) : {}) || {};
-            let bot = (m.isGroup ? findParticipant(this.user.id) : {}) || {};
+            let bot = (m.isGroup ? findParticipant(this.decodeJid(this.user.id)) : {}) || {};
 
             let isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
             let isBotAdmin = bot?.admin == 'superadmin' || bot?.admin == 'admin' || false;

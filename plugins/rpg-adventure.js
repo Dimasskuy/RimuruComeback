@@ -14,10 +14,10 @@ let handler = async (m, { conn, usedPrefix, owner }) => {
         }
 
         let __timers = (new Date - user.lastadventure)
-        let _timers = (600000 - __timers) // 10 minutes in milliseconds
+        let _timers = (1200000 - __timers) // 20 minutes in milliseconds
         let timers = clockString(_timers)
         if (user.healt > 79) {
-            if (new Date - user.lastadventure > 600000) { // 10 minutes cooldown
+            if (new Date - user.lastadventure > 1200000) { // 20 minutes cooldown
                 // Define monsters
                 let monsters = [
                     { name: 'Goblin', health: 20, attack: 5 },
@@ -171,7 +171,7 @@ if (user.armordurability <= 0) {
 handler.help = ['adventure']
 handler.tags = ['rpg']
 handler.command = /^(adventure)$/i
-handler.limit = true
+handler.limit = false
 handler.group = true
 handler.fail = null
 

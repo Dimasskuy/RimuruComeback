@@ -10,10 +10,10 @@ let handler = async (m, {
 }) => {
 		let lastFishingTime = global.db.data.users[m.sender].lastmancing || 0;
 		let timeDiff = Date.now() - lastFishingTime;
-		let remainingTime = 180000 - timeDiff; 
+		let remainingTime = 600000 - timeDiff;
 
 		if (global.db.data.users[m.sender].fishingrod > 0) {
-			if (timeDiff >= 180000) { 
+			if (timeDiff >= 600000) {
 				let ikan = Math.floor(Math.random() * 30);
 				let lele = Math.floor(Math.random() * 15);
 				let nila = Math.floor(Math.random() * 10);

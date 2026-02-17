@@ -17,8 +17,12 @@ let handler = async (m, { conn, args, usedPrefix, isOwner }) => {
         count = count ? /all/i.test(count) ? Math.floor(global.db.data.users[m.sender].money / buatall) : parseInt(count) : args[0] ? parseInt(args[0]) : 1
         count = Math.max(1, count)
         if (args.length < 1) return conn.reply(m.chat, '• *Example :* .judi 1000', m)
-        if (global.db.data.users[m.sender].money >= count * 1) {
-            global.db.data.users[m.sender].money -= count * 1
+        let user = global.db.data.users[m.sender]
+        if (user.money < -1000000) return conn.reply(m.chat, 'Kamu punya hutang lebih dari 1 juta! Bayar hutang dulu baru boleh judi.', m)
+        if (count > 1000000) return conn.reply(m.chat, 'Max bet adalah 1 juta!', m)
+
+        if ((user.money - count) >= -1000000) {
+            user.money -= count * 1
             if (Aku > Kamu) {
                 conn.reply(m.chat, `aku roll:${Aku}\nKamu roll: ${Kamu}\n\nkamu *Kalah*, kamu kehilangan ${count} money`.trim(), m)
             } else if (Aku < Kamu) {

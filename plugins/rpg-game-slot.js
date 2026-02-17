@@ -13,8 +13,10 @@ Berapa banyak yang ingin Anda pertaruhkan?
     let time = users.lastslot + 5000
     if (new Date - users.lastslot < 5000) throw `⏳ Tunggu *${msToTime(time - new Date())}* Untuk menggunakan lagi`
     if (apuesta < 100) throw '✳️ tambahkan *MONEY* Untuk menggunakan lagi'
-    if (users.money < apuesta) {
-        throw `✳️ Anda tidak memiliki cukup *MONEY*\nCek MONEY mu di *.balance*`
+    if (users.money < -1000000) throw 'Kamu punya hutang lebih dari 1 juta! Bayar hutang dulu baru boleh main slot.'
+    if (apuesta > 1000000) throw 'Max bet adalah 1 juta!'
+    if ((users.money - apuesta) < -1000000) {
+        throw `✳️ Anda tidak memiliki cukup *MONEY* (Batas hutang -1 Juta)\nCek MONEY mu di *.balance*`
     }
 
     let emojis = ["🕊️", "🦀", "🦎"];

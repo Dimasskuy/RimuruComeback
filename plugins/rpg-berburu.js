@@ -1,11 +1,11 @@
 let handler = async (m, { conn }) => {
     let __timers = (new Date - global.db.data.users[m.sender].lastberburu)
-    let _timers = (3600000 - __timers)
+    let _timers = (1800000 - __timers)
     let timers = clockString(_timers)
     let name = conn.getName(m.sender)
     let user = global.db.data.users[m.sender]
 
-    if (new Date - global.db.data.users[m.sender].lastberburu > 3600000) {
+    if (new Date - global.db.data.users[m.sender].lastberburu > 1800000) {
         let randomaku1 = `${Math.floor(Math.random() * 10)}`
         let randomaku2 = `${Math.floor(Math.random() * 10)}`
         let randomaku4 = `${Math.floor(Math.random() * 10)}`

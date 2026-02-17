@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const uploadImage = require('../lib/uploadImage.js');
+const uploadImage = require("../lib/uploader.js")
 
 async function handler(m, { conn, usedPrefix, command, args, text }) {
 	if (!text) return m.reply('kirim video/gambar/audio dengan caption .fakesize <angka>');

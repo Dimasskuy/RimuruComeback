@@ -195,6 +195,8 @@ module.exports = {
 
             // Consolidated Plugin Loop
             const pluginsToRun = global.categorizedPlugins?.command || [];
+            const { checkAccess, checkLimit } = require('./lib/middleware');
+
             for (let name of pluginsToRun) {
                 let plugin = global.plugins[name];
                 if (!plugin || plugin.disabled) continue;
@@ -233,11 +235,35 @@ module.exports = {
                     if (!isAccept) continue;
                     m.plugin = name;
 
+                    if (m.isGroup) {
+                        m.isAdmin = isAdmin;
+                        m.isBotAdmin = isBotAdmin;
+                    }
+
+                    // Metadata Refresh Fallback
+                    if (m.isGroup && ((plugin.botAdmin && !isBotAdmin) || (plugin.admin && !isAdmin))) {
+                        let freshMetadata = await this.groupMetadata(m.chat).catch(() => null);
+                        if (freshMetadata) {
+                            groupMetadata = freshMetadata;
+                            participants = groupMetadata.participants || [];
+                            user = findParticipant(m.sender) || {};
+                            bot = findParticipant(this.decodeJid(this.user.id)) || {};
+                            isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
+                            isBotAdmin = bot?.admin == 'superadmin' || bot?.admin == 'admin' || false;
+                            m.isAdmin = isAdmin;
+                            m.isBotAdmin = isBotAdmin;
+                        }
+                    }
+
+                    // Middleware Access Control
+                    const access = checkAccess(m, _user, global.db.data.chats[m.chat], plugin, opts);
+                    if (access.error) { global.dfail(access.error, m, this); continue; }
+                    if (access.block) return;
+
+                    // Update User Command Stats
                     if (m.chat in global.db.data.chats || m.sender in global.db.data.users) {
                         let chat = global.db.data.chats[m.chat];
                         let user = global.db.data.users[m.sender];
-                        if (!['group-modebot.js', 'owner-unbanchat.js', 'owner-exec.js', 'owner-exec2.js', 'tool-delete.js'].includes(name) && (chat?.isBanned || chat?.mute)) return;
-                        if (name != 'unbanuser.js' && user && user.banned) return;
                         if (m.isGroup) {
                             chat.memgc[m.sender].command++;
                             chat.memgc[m.sender].commandTotal++;
@@ -248,42 +274,14 @@ module.exports = {
                         user.lastCmd = Date.now();
                     }
 
-                    if (plugin.rowner && !isROwner) { global.dfail('rowner', m, this); continue; }
-                    if (plugin.owner && !isOwner) { global.dfail('owner', m, this); continue; }
-                    if (plugin.mods && !isMods) { global.dfail('mods', m, this); continue; }
-                    if (plugin.premium && !isPrems) { global.dfail('premium', m, this); continue; }
-                    if (plugin.group && !m.isGroup) { global.dfail('group', m, this); continue; }
-                    if (m.isGroup && ((plugin.botAdmin && !isBotAdmin) || (plugin.admin && !isAdmin))) {
-                        let freshMetadata = await this.groupMetadata(m.chat).catch(() => null);
-                        if (freshMetadata) {
-                            groupMetadata = freshMetadata;
-                            if (this.chats[m.chat]) this.chats[m.chat].metadata = groupMetadata;
-                            participants = groupMetadata.participants || [];
-                            user = findParticipant(m.sender) || {};
-                            bot = findParticipant(this.user.id) || {};
-                            isAdmin = user?.admin == 'superadmin' || user?.admin == 'admin' || false;
-                            isBotAdmin = bot?.admin == 'superadmin' || bot?.admin == 'admin' || false;
-                        }
-                    }
-
-                    if (plugin.botAdmin && !isBotAdmin) { global.dfail('botAdmin', m, this); continue; }
-                    if (plugin.admin && !isAdmin) { global.dfail('admin', m, this); continue; }
-                    if (plugin.private && m.isGroup) { global.dfail('private', m, this); continue; }
-                    if (plugin.register && !_user.registered) { global.dfail('unreg', m, this); continue; }
-
                     m.isCommand = true;
                     let xp = 'exp' in plugin ? parseInt(plugin.exp) : 17;
                     if (xp > 200) m.reply('Ngecit -_-');
                     else m.exp += xp;
 
-                    if (!isPrems && plugin.limit && global.db.data.users[m.sender].limit < plugin.limit * 1) {
-                        this.reply(m.chat, `Limit anda habis, silahkan beli melalui *${usedPrefix}buy* atau beli di *${usedPrefix}shop*`, m);
-                        continue;
-                    }
-                    if (plugin.level > _user.level) {
-                        this.reply(m.chat, `diperlukan level ${plugin.level} untuk menggunakan perintah ini. Level kamu ${_user.level}\n gunakan .levelup untuk menaikan level!`, m);
-                        continue;
-                    }
+                    // Middleware Limit Check
+                    const limitCheck = checkLimit(m, _user, plugin, usedPrefix);
+                    if (limitCheck.error) { this.reply(m.chat, limitCheck.msg, m); continue; }
 
                     let extra = {
                         match, usedPrefix, noPrefix, _args, args, command, text,

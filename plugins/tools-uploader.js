@@ -1,5 +1,5 @@
-const uploadFile = require('../lib/uploadFile')
-const uploadImage = require('../lib/uploadImage')
+const uploadFile = require("../lib/uploader.js")
+const uploadImage = require("../lib/uploader.js")
 
 let handler = async (m) => {
   let q = m.quoted ? m.quoted : m

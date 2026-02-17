@@ -1,8 +1,8 @@
 //cuma bisa di gc
 
 let fetch = require ("node-fetch");
-let uploadFile = require ("../lib/uploadFile.js");
-let uploadImage = require ("../lib/uploadImage.js");
+let uploadFile = require("../lib/uploader.js")
+let uploadImage = require("../lib/uploader.js")
 const commandList = ["upsw"];
 
 const mimeAudio = "audio/mpeg";

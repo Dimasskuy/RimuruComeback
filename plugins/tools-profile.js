@@ -19,6 +19,9 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
   if (!who) who = m.sender
 
+  // Ensure JID is normalized (handling LIDs)
+  who = conn.getJid(who)
+
   if (!who.includes('@')) who += '@s.whatsapp.net'
 
   if (!global.db.data.users[who]) {

@@ -76,7 +76,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
         await conn.sendMessage(m.chat, {
             audio: audioBuffer,
-            mimetype: 'audio/mp4',
+            mimetype: 'audio/mpeg',
             fileName: `${title}.mp3`
         }, { quoted: m });
 

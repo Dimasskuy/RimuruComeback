@@ -2,6 +2,11 @@ let syntaxerror = require('syntax-error')
 let util = require('util')
 
 let handler  = async (m, _2) => {
+  const safeMode = global.security?.safeMode !== false;
+  if (safeMode) {
+    throw 'Fitur eval dinonaktifkan pada SAFE MODE. Ubah global.security.safeMode = false jika benar-benar diperlukan.';
+  }
+
   let { conn, usedPrefix, noPrefix, args, groupMetadata } = _2
   let _return
   let _syntax = ''

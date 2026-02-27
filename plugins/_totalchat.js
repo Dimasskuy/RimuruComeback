@@ -5,12 +5,12 @@
 
 // In-memory buffer untuk totalchat
 const totalChatBuffer = new Map();
+const scheduler = require('../lib/scheduler');
+const SCHEDULER_KEY = 'plugin:_totalchat:flush';
 
 // Flush buffer ke database setiap 1 menit
 function startFlushInterval() {
-    if (global.flushTotalChatInterval) clearInterval(global.flushTotalChatInterval);
-    
-    global.flushTotalChatInterval = setInterval(() => {
+    scheduler.setManagedInterval(SCHEDULER_KEY, () => {
         if (totalChatBuffer.size > 0 && global.db?.data?.totalchat) {
             let flushed = 0;
             
@@ -68,7 +68,7 @@ module.exports = {
      * Flush manual (untuk shutdown)
      */
     async flush() {
-        if (global.flushTotalChatInterval) clearInterval(global.flushTotalChatInterval);
+        scheduler.clearManagedInterval(SCHEDULER_KEY);
         
         if (totalChatBuffer.size > 0 && global.db?.data?.totalchat) {
             for (const [chatKey, userData] of totalChatBuffer.entries()) {

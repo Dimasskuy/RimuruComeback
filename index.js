@@ -424,21 +424,28 @@ async function gracefulShutdown(signal) {
             logger.info('[Shutdown] Cleaning up cache...');
             cache.cleanup();
         }
+
+        // 5. Cleanup scheduler tasks
+        const scheduler = require('./lib/scheduler');
+        if (scheduler.clearAll) {
+            logger.info('[Shutdown] Cleaning up scheduler...');
+            scheduler.clearAll();
+        }
         
-        // 5. Close MongoDB connection
+        // 6. Close MongoDB connection
         if (mongoose.connection.readyState) {
             logger.info('[Shutdown] Closing MongoDB connection...');
             await mongoose.connection.close();
             logger.info('[Shutdown] MongoDB connection closed');
         }
         
-        // 6. Close WhatsApp connection
+        // 7. Close WhatsApp connection
         if (global.conn?.ws) {
             logger.info('[Shutdown] Closing WhatsApp connection...');
             global.conn.ws.close();
         }
         
-        // 7. Close Express server
+        // 8. Close Express server
         logger.info('[Shutdown] Shutdown completed in ' + (Date.now() - shutdownStartTime) + 'ms');
         
         process.exit(0);

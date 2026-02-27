@@ -36,6 +36,17 @@ global.logging = {
 // ==========================================
 // PERFORMANCE CONFIGURATION
 // ==========================================
+
+
+// ==========================================
+// SECURITY CONFIGURATION
+// ==========================================
+global.security = {
+    safeMode: true,            // Disable dangerous owner shell/JS exec by default
+    allowShellExec: false,     // Explicitly allow shell execution commands
+    shellAllowlist: ['pm2', 'ls', 'pwd', 'df', 'free', 'uptime', 'node -v', 'npm -v']
+};
+
 global.performance = {
     autoRestartMemory: true,    // Auto restart jika memory > 90%
     memoryThreshold: 90,        // Persentase memory untuk trigger restart

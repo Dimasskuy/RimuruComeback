@@ -1,0 +1,387 @@
+{
+  "generatedAt": "2026-02-28T12:13:18.300Z",
+  "notes": {
+    "unusedDetection": "Conservative static scan. Dynamic path construction may produce false positives. DO NOT delete directly without manual validation."
+  },
+  "totals": {
+    "files": 459,
+    "jsFiles": 388,
+    "codeFiles": 397,
+    "assetFiles": 58
+  },
+  "folders": {
+    ".gitignore": 1,
+    "config.js": 1,
+    "COOKIES_SETUP.md": 1,
+    "cookies.txt": 1,
+    "Dockerfile": 1,
+    "docs": 2,
+    "handler.js": 1,
+    "index.js": 1,
+    "lib": 25,
+    "package-lock.json": 1,
+    "package.json": 1,
+    "plugins": 361,
+    "README.md": 1,
+    "scripts": 1,
+    "src": 59,
+    "update-ytdlp.sh": 1
+  },
+  "largestJsByLines": [
+    {
+      "file": "lib/webp.js",
+      "lines": 1498,
+      "bytes": 37061
+    },
+    {
+      "file": "plugins/rpg-shop.js",
+      "lines": 1471,
+      "bytes": 102385
+    },
+    {
+      "file": "lib/werewolf.js",
+      "lines": 1240,
+      "bytes": 39037
+    },
+    {
+      "file": "plugins/tools-repeat.js",
+      "lines": 1026,
+      "bytes": 8517
+    },
+    {
+      "file": "lib/simple.js",
+      "lines": 788,
+      "bytes": 35921
+    },
+    {
+      "file": "plugins/rpg-restauran.js",
+      "lines": 725,
+      "bytes": 51051
+    },
+    {
+      "file": "plugins/rpg-pasar.js",
+      "lines": 579,
+      "bytes": 40198
+    },
+    {
+      "file": "index.js",
+      "lines": 520,
+      "bytes": 20240
+    },
+    {
+      "file": "handler.js",
+      "lines": 488,
+      "bytes": 23965
+    },
+    {
+      "file": "plugins/rpg-open.js",
+      "lines": 461,
+      "bytes": 29556
+    },
+    {
+      "file": "plugins/game-wwgc.js",
+      "lines": 404,
+      "bytes": 15382
+    },
+    {
+      "file": "lib/cache.js",
+      "lines": 397,
+      "bytes": 11234
+    },
+    {
+      "file": "lib/schema.js",
+      "lines": 371,
+      "bytes": 8253
+    },
+    {
+      "file": "plugins/fun-cekkhodam.js",
+      "lines": 358,
+      "bytes": 31428
+    },
+    {
+      "file": "plugins/downloader-tiktok.js",
+      "lines": 322,
+      "bytes": 11731
+    },
+    {
+      "file": "plugins/rpg-tf.js",
+      "lines": 316,
+      "bytes": 19136
+    },
+    {
+      "file": "lib/myfunc.js",
+      "lines": 308,
+      "bytes": 9830
+    },
+    {
+      "file": "plugins/rpg-dungeon.js",
+      "lines": 297,
+      "bytes": 10999
+    },
+    {
+      "file": "plugins/menu.js",
+      "lines": 292,
+      "bytes": 10233
+    },
+    {
+      "file": "lib/queue.js",
+      "lines": 262,
+      "bytes": 7054
+    },
+    {
+      "file": "plugins/rpg-makan.js",
+      "lines": 254,
+      "bytes": 11302
+    },
+    {
+      "file": "plugins/rpg-upgrade.js",
+      "lines": 247,
+      "bytes": 12432
+    },
+    {
+      "file": "plugins/rpg_leaderboard.js",
+      "lines": 243,
+      "bytes": 9163
+    },
+    {
+      "file": "plugins/_enable.js",
+      "lines": 240,
+      "bytes": 5482
+    },
+    {
+      "file": "plugins/_store-proses-done.js",
+      "lines": 239,
+      "bytes": 8231
+    }
+  ],
+  "findings": {
+    "syncFs": [
+      {
+        "file": "index.js",
+        "count": 10
+      },
+      {
+        "file": "lib/exif.js",
+        "count": 12
+      },
+      {
+        "file": "lib/sambung-kata.js",
+        "count": 2
+      },
+      {
+        "file": "lib/simple.js",
+        "count": 7
+      },
+      {
+        "file": "lib/welcome.js",
+        "count": 3
+      },
+      {
+        "file": "plugins/_autosticker.js",
+        "count": 2
+      },
+      {
+        "file": "plugins/downloader-play.js",
+        "count": 6
+      },
+      {
+        "file": "plugins/downloader-ytmp3.js",
+        "count": 6
+      },
+      {
+        "file": "plugins/downloader-ytmp4.js",
+        "count": 4
+      },
+      {
+        "file": "plugins/group-listgroup.js",
+        "count": 3
+      },
+      {
+        "file": "plugins/maker-hartatahta.js",
+        "count": 3
+      },
+      {
+        "file": "plugins/maker-swm.js",
+        "count": 4
+      },
+      {
+        "file": "plugins/owner-backupsc.js",
+        "count": 3
+      },
+      {
+        "file": "plugins/owner-getplugins.js",
+        "count": 3
+      },
+      {
+        "file": "plugins/owner-getsesi.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/owner-sfp-df.js",
+        "count": 3
+      },
+      {
+        "file": "plugins/sticker-sticker.js",
+        "count": 2
+      },
+      {
+        "file": "scripts/audit.js",
+        "count": 5
+      }
+    ],
+    "setInterval": [
+      {
+        "file": "handler.js",
+        "count": 2
+      },
+      {
+        "file": "index.js",
+        "count": 3
+      },
+      {
+        "file": "lib/cache.js",
+        "count": 2
+      },
+      {
+        "file": "plugins/_totalchat.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/game-pelabuhan.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/group-closegc.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/owner-autobackupdb.js",
+        "count": 1
+      }
+    ],
+    "childProcessExec": [
+      {
+        "file": "handler.js",
+        "count": 3
+      },
+      {
+        "file": "plugins/_antilink.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/downloader-play.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/downloader-ytmp3.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/info-speedtest.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/main-buttonrespon.js",
+        "count": 3
+      },
+      {
+        "file": "plugins/owner-exec2.js",
+        "count": 1
+      },
+      {
+        "file": "plugins/tool-audiochanges.js",
+        "count": 1
+      },
+      {
+        "file": "scripts/audit.js",
+        "count": 2
+      }
+    ],
+    "tlsDisabled": [
+      {
+        "file": "index.js",
+        "count": 1
+      }
+    ],
+    "hardcodedMongo": [],
+    "secretLike": [
+      {
+        "file": "plugins/tools-lookup.js",
+        "count": 1
+      }
+    ]
+  },
+  "unusedCandidates": {
+    "js": {
+      "count": 7,
+      "files": [
+        "lib/functions.js",
+        "lib/myfunc.js",
+        "lib/queue.js",
+        "lib/sambung-kata.js",
+        "lib/webp.js",
+        "lib/webp2mp4.js",
+        "lib/welcome.js"
+      ]
+    },
+    "assets": {
+      "count": 54,
+      "files": [
+        "src/Aesthetic/Aesthetic_001.jpg",
+        "src/Aesthetic/Aesthetic_002.jpg",
+        "src/font/212BabyGirl.otf",
+        "src/font/212LeahleeSans.ttf",
+        "src/font/99HandWritting.ttf",
+        "src/font/ACallingFontDby7NTypes.otf",
+        "src/font/ACasualHandwrittenPenNoncommercial.ttf",
+        "src/font/ADayinSeptember.otf",
+        "src/font/ASMelanieHandwritting.ttf",
+        "src/font/Alittlesunshine.ttf",
+        "src/font/And-This-Happened.ttf",
+        "src/font/AvenirCondensedHand.ttf",
+        "src/font/Avocados.ttf",
+        "src/font/BabyDoll.ttf",
+        "src/font/BattleOfKingsRegular.ttf",
+        "src/font/BrayNotes.ttf",
+        "src/font/Convered-By-Your-Grace.ttf",
+        "src/font/Edoms-Handwritting-Normal.ttf",
+        "src/font/Futura Bold Italic font.ttf",
+        "src/font/Futura Bold font.ttf",
+        "src/font/Futura Book Italic font.ttf",
+        "src/font/Futura Book font.ttf",
+        "src/font/Futura Extra Black font.ttf",
+        "src/font/Futura Heavy Italic font.ttf",
+        "src/font/Futura Heavy font.ttf",
+        "src/font/Futura Light Italic font.ttf",
+        "src/font/Futura Light font.ttf",
+        "src/font/Futura Medium Italic font.ttf",
+        "src/font/Futura XBlk BT.ttf",
+        "src/font/Futura-CondensedLight.otf",
+        "src/font/GloriaHallelujah-Regular.ttf",
+        "src/font/HandwritingCR-2.ttf",
+        "src/font/Kempton-Demo-Handwritting.ttf",
+        "src/font/MyHandsareHoldingYou.ttf",
+        "src/font/My_handwriting.ttf",
+        "src/font/Nadeznas-Handwritting.ttf",
+        "src/font/Roboto-BlackItalic.ttf",
+        "src/font/Roboto-Bold.ttf",
+        "src/font/Roboto-BoldItalic.ttf",
+        "src/font/Roboto-Italic.ttf",
+        "src/font/Roboto-Light.ttf",
+        "src/font/Roboto-LightItalic.ttf",
+        "src/font/Roboto-Medium.ttf",
+        "src/font/Roboto-MediumItalic.ttf",
+        "src/font/Roboto-Regular.ttf",
+        "src/font/Roboto-Thin.ttf",
+        "src/font/Roboto-ThinItalic.ttf",
+        "src/font/ShadowsIntoLight-Regular.ttf",
+        "src/font/angelina.ttf",
+        "src/font/futur.ttf",
+        "src/font/futura light bt.ttf",
+        "src/font/futura medium bt.ttf",
+        "src/font/futura medium condensed bt.ttf",
+        "src/font/michellehandwritting.ttf"
+      ]
+    }
+  }
+}

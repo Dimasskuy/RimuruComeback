@@ -43,7 +43,7 @@ async function acquireUserLock(key) {
         }
         await delay(10);
     }
-    userLocks.set(key, true);
+    userLocks.set(key, Date.now());
     return () => userLocks.delete(key);
 }
 
@@ -61,7 +61,7 @@ async function acquireChatLock(key) {
         }
         await delay(10);
     }
-    chatLocks.set(key, true);
+    chatLocks.set(key, Date.now());
     return () => chatLocks.delete(key);
 }
 

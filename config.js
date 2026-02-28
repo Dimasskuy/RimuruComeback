@@ -1,18 +1,21 @@
-global.owner = ['6282257529886'] // wajib di isi tidak boleh kosong
-global.mods  = ['6282257529886'] // wajib di isi tidak boleh kosong
-global.prems = ['6282257529886'] // wajib di isi tidak boleh kosong
-global.nameowner = 'dmss' // wajib di isi tidak boleh kosong
-global.numberowner = '6282257529886' // wajib di isi tidak boleh kosong
-global.pairingNumber = '6285196174124' // nomor bot untuk pairing code
-global.mail = 'rimurubetaa@gmail.com' // wajib di isi tidak boleh kosong
-global.gc = 'https://chat.whatsapp.com/DXPU5F2cePXEaysvcImdUy' // wajib di isi tidak boleh kosong
-global.instagram = 'https://instagram.com/prm2.0' // wajib di isi tidak boleh kosong
-global.wm = 'Rimuru Assistant' // isi nama bot atau nama kalian
+const chalk = require('chalk')
+const toList = (value, fallback = '') => (value || fallback).split(',').map(v => v.trim()).filter(Boolean)
+
+global.owner = toList(process.env.OWNER_NUMBERS, '6282257529886') // wajib di isi tidak boleh kosong
+global.mods  = toList(process.env.MOD_NUMBERS, global.owner.join(',')) // wajib di isi tidak boleh kosong
+global.prems = toList(process.env.PREM_NUMBERS, global.owner.join(',')) // wajib di isi tidak boleh kosong
+global.nameowner = process.env.OWNER_NAME || 'dmss' // wajib di isi tidak boleh kosong
+global.numberowner = process.env.OWNER_NUMBER || '6282257529886' // wajib di isi tidak boleh kosong
+global.pairingNumber = process.env.PAIRING_NUMBER || '6285196174124' // nomor bot untuk pairing code
+global.mail = process.env.OWNER_EMAIL || 'rimurubetaa@gmail.com' // wajib di isi tidak boleh kosong
+global.gc = process.env.GROUP_LINK || 'https://chat.whatsapp.com/DXPU5F2cePXEaysvcImdUy' // wajib di isi tidak boleh kosong
+global.instagram = process.env.INSTAGRAM_LINK || 'https://instagram.com/prm2.0' // wajib di isi tidak boleh kosong
+global.wm = process.env.BOT_WM || 'Rimuru Assistant' // isi nama bot atau nama kalian
 global.eror = 'Server Error' // ini pesan saat terjadi kesalahan
-global.packname = 'Made With' // watermark stikcker packname
-global.author = 'Rimuru Assistant' // watermark stikcker author
-global.maxwarn = '5' // Peringatan maksimum Warn
-global.urlMongo = process.env.MONGODB_URL || 'mongodb+srv://dimas:dimas@rimurucomeback.msxilze.mongodb.net/?appName=rimurucomeback'
+global.packname = process.env.STICKER_PACKNAME || 'Made With' // watermark stikcker packname
+global.author = process.env.STICKER_AUTHOR || 'Rimuru Assistant' // watermark stikcker author
+global.maxwarn = process.env.MAX_WARN || '5' // Peringatan maksimum Warn
+global.urlMongo = process.env.MONGODB_URL || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/rimurucomeback'
 
 global.autobio = false // Set true/false untuk mengaktifkan atau mematikan autobio (default: false)
 global.antiporn = false // Set true/false untuk Auto delete pesan porno (bot harus admin) (default: false)
@@ -37,14 +40,22 @@ global.logging = {
 // PERFORMANCE CONFIGURATION
 // ==========================================
 global.performance = {
-    autoRestartMemory: true,    // Auto restart jika memory > 90%
-    memoryThreshold: 90,        // Persentase memory untuk trigger restart
-    dbWriteDebounce: 5000,      // Delay write database (ms)
-    cacheEnabled: true          // Enable LRU cache
+    autoRestartMemory: process.env.AUTO_RESTART_MEMORY !== 'false', // Auto restart jika memory > threshold
+    memoryThreshold: Number(process.env.MEMORY_THRESHOLD || 90),     // Persentase memory untuk trigger restart
+    dbWriteDebounce: Number(process.env.DB_WRITE_DEBOUNCE || 5000),  // Delay write database (ms)
+    cacheEnabled: process.env.CACHE_ENABLED !== 'false'              // Enable LRU cache
 };
 
+// Security feature flags
+global.security = {
+    allowOwnerExec: process.env.ALLOW_OWNER_EXEC === 'true'
+};
+
+if (!process.env.MONGODB_URL && !process.env.MONGO_URI) {
+    console.log(chalk.yellow('[Config] MONGODB_URL tidak ditemukan, memakai default lokal mongodb://127.0.0.1:27017/rimurucomeback'));
+}
+
 let fs = require('fs')
-let chalk = require('chalk')
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {
   fs.unwatchFile(file)

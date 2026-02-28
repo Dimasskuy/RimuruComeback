@@ -1,5 +1,7 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 require('./config');
+if (process.env.ALLOW_INSECURE_TLS === 'true') {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 const {
     useMultiFileAuthState,
     DisconnectReason,
@@ -19,6 +21,26 @@ const qrcode = require('qrcode-terminal');
 const readline = require('readline');
 const logger = require('./lib/logger');
 const os = require('os');
+
+const runtimeMetrics = {
+    eventLoopLagMs: 0,
+    reconnectAttempt: 0,
+    lastReconnectDelayMs: 0
+};
+
+const reconnectPolicy = {
+    baseDelayMs: Number(process.env.RECONNECT_BASE_DELAY_MS || 3000),
+    maxDelayMs: Number(process.env.RECONNECT_MAX_DELAY_MS || 60000),
+    jitterMs: Number(process.env.RECONNECT_JITTER_MS || 1500)
+};
+
+let reconnectTimer = null;
+let lagProbeExpected = Date.now() + 1000;
+setInterval(() => {
+    const now = Date.now();
+    runtimeMetrics.eventLoopLagMs = Math.max(0, now - lagProbeExpected);
+    lagProbeExpected = now + 1000;
+}, 1000);
 
 // Execute Prototype Extension
 protoType();
@@ -199,6 +221,16 @@ function startExpress(portIndex = 0) {
                 },
                 intervals: {
                     active: global.activeIntervals?.length || 0
+                },
+                system: {
+                    cpuLoad1m: os.loadavg()[0],
+                    cpuLoad5m: os.loadavg()[1],
+                    cpuLoad15m: os.loadavg()[2],
+                    eventLoopLagMs: runtimeMetrics.eventLoopLagMs
+                },
+                reconnect: {
+                    attempt: runtimeMetrics.reconnectAttempt,
+                    lastDelayMs: runtimeMetrics.lastReconnectDelayMs
                 }
             };
             
@@ -289,8 +321,22 @@ async function start() {
         }
         if (connection === 'close') {
             const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-            if (shouldReconnect) start();
+            if (shouldReconnect) {
+                runtimeMetrics.reconnectAttempt += 1;
+                const expBackoff = Math.min(
+                    reconnectPolicy.baseDelayMs * Math.pow(2, Math.max(runtimeMetrics.reconnectAttempt - 1, 0)),
+                    reconnectPolicy.maxDelayMs
+                );
+                const jitter = Math.floor(Math.random() * reconnectPolicy.jitterMs);
+                const delayMs = expBackoff + jitter;
+                runtimeMetrics.lastReconnectDelayMs = delayMs;
+                logger.warn(`[Reconnect] Attempt ${runtimeMetrics.reconnectAttempt} in ${delayMs}ms`);
+                if (reconnectTimer) clearTimeout(reconnectTimer);
+                reconnectTimer = setTimeout(() => start(), delayMs);
+            }
         } else if (connection === 'open') {
+            runtimeMetrics.reconnectAttempt = 0;
+            runtimeMetrics.lastReconnectDelayMs = 0;
             logger.info('🌐 Connection opened');
             if (global.db.data) {
                 await conn.insertAllGroup().catch((e) => logger.error(`[insertAllGroup] ${e.message}`));
@@ -379,9 +425,14 @@ async function start() {
         registerInterval(() => {
             const memoryUsage = process.memoryUsage();
             const heapUsedPercent = (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100;
-            
-            if (heapUsedPercent > 90) {
-                logger.warn(`[Memory] High memory usage: ${heapUsedPercent.toFixed(2)}%`);
+            const threshold = Number(global.performance?.memoryThreshold || 90);
+
+            if (heapUsedPercent > threshold) {
+                logger.warn(`[Memory] High memory usage: ${heapUsedPercent.toFixed(2)}% (threshold ${threshold}%)`);
+                if (global.performance?.autoRestartMemory) {
+                    logger.error('[Memory] Auto restart triggered by memory threshold');
+                    gracefulShutdown('AUTO_MEMORY_RESTART');
+                }
             } else if (heapUsedPercent > 80) {
                 logger.info(`[Memory] Memory usage: ${heapUsedPercent.toFixed(2)}%`);
             }

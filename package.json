@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "start": "node index.js --autocleartmp",
-        "test": "node test.js"
+        "test": "node test.js",
+        "audit:codebase": "node scripts/audit.js"
     },
     "license": "MIT",
     "dependencies": {

@@ -1,3 +1,4 @@
+const { EXCLUSIVE_ITEMS } = require('../lib/rpgRules')
 
 const Bcoal = 3000
 const Scoal = 500
@@ -208,6 +209,9 @@ let handler  = async (m, { conn, command, args, usedPrefix, owner }) => {
 =======================
 Penggunaan ${usedPrefix}shop <Buy|sell> <item> <jumlah>
 Contoh penggunaan: *${usedPrefix}shop buy potion 1*
+
+⚠️ Item eksklusif tidak bisa dibeli: relicshard, ancientrelic
+Gunakan *.exclusiveitem* untuk lihat cara dapat.
 `.trim()
     try {
         if (/shop|toko/i.test(command)) {
@@ -215,6 +219,9 @@ Contoh penggunaan: *${usedPrefix}shop buy potion 1*
             const sampah = global.db.data.users[m.sender].sampah
             switch (jualbeli) {
             case 'buy':
+                if (EXCLUSIVE_ITEMS[_type]) {
+                    return conn.reply(m.chat, `Item *${EXCLUSIVE_ITEMS[_type].name}* adalah item eksklusif dan tidak bisa dibeli di shop.\nCara dapat: ${EXCLUSIVE_ITEMS[_type].obtain}`, m)
+                }
                 switch (_type) {
                     case 'potion':
                             if (global.db.data.users[m.sender].money >= potion * count) {

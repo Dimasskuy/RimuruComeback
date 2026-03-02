@@ -1,3 +1,22 @@
+const fsEnv = require('fs')
+const path = require('path')
+
+function loadEnvFile() {
+  const envPath = path.join(__dirname, '.env')
+  if (!fsEnv.existsSync(envPath)) return
+  const rows = fsEnv.readFileSync(envPath, 'utf8').split(/\r?\n/)
+  for (const row of rows) {
+    const line = row.trim()
+    if (!line || line.startsWith('#')) continue
+    const idx = line.indexOf('=')
+    if (idx < 0) continue
+    const key = line.slice(0, idx).trim()
+    const value = line.slice(idx + 1).trim().replace(/^['"]|['"]$/g, '')
+    if (key && process.env[key] == null) process.env[key] = value
+  }
+}
+
+loadEnvFile()
 const chalk = require('chalk')
 const toList = (value, fallback = '') => (value || fallback).split(',').map(v => v.trim()).filter(Boolean)
 

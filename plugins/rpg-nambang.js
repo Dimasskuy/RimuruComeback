@@ -1,3 +1,4 @@
+const { incrementProgress } = require('../lib/rpgProgress')
 let handler = async (m, { conn }) => {
   let __timers = (new Date - global.db.data.users[m.sender].lastnambang)
   let _timers = (300000 - __timers)
@@ -27,7 +28,7 @@ let handler = async (m, { conn }) => {
       var zero5 = `${rbrb5}`
 
       let arr = [
-          `mencari lebih dalam...`, 
+          `🔎 Menjelajah lebih dalam...`, 
           `⛏️⛏️🪨💎🪨🪨🪨🪨🪨
           🪨⬜⬜⬜🪨⬜⬜⬜🪨🪨
           🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨
@@ -36,7 +37,7 @@ let handler = async (m, { conn }) => {
           💎⛏️⛏️🪨🪨⬜⬜⬜🪨🪨
           🪨🪨🪨🪨🪨🪨🪨⛏️🪨🪨
           🪨🪨⛏️⛏️🪙  🪙 🪨       \n\n\n➕ kamu di tambang...`, 
-          `➕ 💹Mendapatkan hasil tambang....`, 
+          `📦 Menghitung hasil tambang...`, 
           `*—[ Hasil nambang kamu ${name} ]—*
           ➕ 🪨 coal = [ ${zero5} ]
           ➕ ✨ emas = [ ${zero4} ] 	
@@ -44,7 +45,7 @@ let handler = async (m, { conn }) => {
           ${wm}`
       ]
 
-      let { key } = await conn.sendMessage(m.chat, {text: 'mencari tempat nambang.....'})
+      let { key } = await conn.sendMessage(m.chat, {text: '⛏️ Mencari lokasi tambang...'})
       for (let i = 0; i < arr.length; i++) {
           await new Promise(resolve => setTimeout(resolve, 10000));
           await conn.sendMessage(m.chat, { text: arr[i], edit: key });
@@ -54,6 +55,7 @@ let handler = async (m, { conn }) => {
       global.db.data.users[m.sender].emas += rbrb4 
       global.db.data.users[m.sender].diamond += rbrb3
       global.db.data.users[m.sender].tiketcoin += 1
+      incrementProgress(user, 'nambang', 1)
 
   } else m.reply(`Sepertinya anda sudah kecapekan dari tambang... silahkan istirahat dulu sekitar\n*${timers}*`)
 }

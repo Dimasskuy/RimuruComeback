@@ -1,15 +1,16 @@
 {
-  "generatedAt": "2026-02-28T12:13:18.300Z",
+  "generatedAt": "2026-03-02T08:39:34.810Z",
   "notes": {
     "unusedDetection": "Conservative static scan. Dynamic path construction may produce false positives. DO NOT delete directly without manual validation."
   },
   "totals": {
-    "files": 459,
-    "jsFiles": 388,
-    "codeFiles": 397,
+    "files": 470,
+    "jsFiles": 398,
+    "codeFiles": 407,
     "assetFiles": 58
   },
   "folders": {
+    ".env.example": 1,
     ".gitignore": 1,
     "config.js": 1,
     "COOKIES_SETUP.md": 1,
@@ -18,10 +19,10 @@
     "docs": 2,
     "handler.js": 1,
     "index.js": 1,
-    "lib": 25,
+    "lib": 28,
     "package-lock.json": 1,
     "package.json": 1,
-    "plugins": 361,
+    "plugins": 368,
     "README.md": 1,
     "scripts": 1,
     "src": 59,
@@ -35,8 +36,8 @@
     },
     {
       "file": "plugins/rpg-shop.js",
-      "lines": 1471,
-      "bytes": 102385
+      "lines": 1478,
+      "bytes": 102809
     },
     {
       "file": "lib/werewolf.js",
@@ -90,8 +91,8 @@
     },
     {
       "file": "lib/schema.js",
-      "lines": 371,
-      "bytes": 8253
+      "lines": 388,
+      "bytes": 8674
     },
     {
       "file": "plugins/fun-cekkhodam.js",
@@ -177,20 +178,24 @@
         "count": 3
       },
       {
+        "file": "lib/ytdlp.js",
+        "count": 4
+      },
+      {
         "file": "plugins/_autosticker.js",
         "count": 2
       },
       {
         "file": "plugins/downloader-play.js",
-        "count": 6
+        "count": 2
       },
       {
         "file": "plugins/downloader-ytmp3.js",
-        "count": 6
+        "count": 2
       },
       {
         "file": "plugins/downloader-ytmp4.js",
-        "count": 4
+        "count": 2
       },
       {
         "file": "plugins/group-listgroup.js",
@@ -266,14 +271,6 @@
       },
       {
         "file": "plugins/_antilink.js",
-        "count": 1
-      },
-      {
-        "file": "plugins/downloader-play.js",
-        "count": 1
-      },
-      {
-        "file": "plugins/downloader-ytmp3.js",
         "count": 1
       },
       {

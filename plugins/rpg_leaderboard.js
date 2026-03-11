@@ -1,13 +1,13 @@
 const { formatShortId } = require('../lib/economyService')
 
-const DEFAULT_PAGE_SIZE = 50
+const PAGE_SIZE = 50
 
 const categories = {
-  money: { name: 'Money', field: 'money' },
-  exp: { name: 'Exp', field: 'exp' },
-  level: { name: 'Level', field: 'level' },
-  limit: { name: 'Limit', field: 'limit' },
-  diamond: { name: 'Diamond', field: 'diamond' }
+  money: { name: 'Money', field: 'money', icon: '💰' },
+  exp: { name: 'Exp', field: 'exp', icon: '✨' },
+  level: { name: 'Level', field: 'level', icon: '🎚️' },
+  limit: { name: 'Limit', field: 'limit', icon: '🎫' },
+  diamond: { name: 'Diamond', field: 'diamond', icon: '💎' }
 }
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
@@ -18,31 +18,29 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     return conn.reply(m.chat, `[Leaderboard] — Kategori tidak tersedia. Pilihan: ${Object.keys(categories).join(', ')}.`, m)
   }
 
+  const cat = categories[category]
   const users = Object.entries(global.db.data.users || {})
     .map(([jid, value]) => ({ jid, ...(value || {}) }))
     .filter(user => !isFlagged(user, category))
-    .sort((a, b) => (Number(b[categories[category].field]) || 0) - (Number(a[categories[category].field]) || 0))
+    .sort((a, b) => (Number(b[cat.field]) || 0) - (Number(a[cat.field]) || 0))
 
-  const start = (page - 1) * DEFAULT_PAGE_SIZE
-  const totalPages = Math.max(1, Math.ceil(users.length / DEFAULT_PAGE_SIZE))
-  const rows = users.slice(start, start + DEFAULT_PAGE_SIZE)
+  const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const start = (safePage - 1) * PAGE_SIZE
+  const rows = users.slice(start, start + PAGE_SIZE)
 
-  const lines = rows.map((u, idx) => {
+  const header = [`┌─⊷ *${cat.icon} LEADERBOARD ${cat.name.toUpperCase()}*`, `┃Halaman: ${safePage}/${totalPages} | Total: ${users.length}`, '┃']
+  const body = rows.map((u, idx) => {
     const rank = start + idx + 1
-    const username = `@${u.jid.split('@')[0]}`
-    const value = formatShortId(u[categories[category].field] || 0)
+    const score = formatShortId(u[cat.field] || 0)
     const region = u.region || '-'
-    const lastActive = u.lastseen ? new Date(u.lastseen).toLocaleDateString('id-ID') : '-'
-    return `${pad(rank, 4)} | ${pad(username, 16)} | ${pad(value, 8)} | ${pad(region, 8)} | ${lastActive}`
+    const active = u.lastseen ? new Date(u.lastseen).toLocaleDateString('id-ID') : '-'
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '▫️'
+    return `┃${medal} *#${rank}* @${u.jid.split('@')[0]}\n┃   ${cat.icon} ${cat.name}: *${score}* | Region: ${region} | Aktif: ${active}`
   })
 
-  const text = [
-    `[Leaderboard] — ${categories[category].name} (Halaman ${page}/${totalPages}).`,
-    'Rank | Username         | Level/Score | Region   | Last Active',
-    ...lines,
-    '',
-    `Gunakan: ${usedPrefix + command} ${category} <halaman>.`
-  ].join('\n')
+  const footer = ['┃', `┃Next: *${usedPrefix + command} ${category} ${safePage + 1}*`, '└──────────────']
+  const text = [...header, ...body, ...footer].join('\n')
 
   return conn.reply(m.chat, text, m, { mentions: rows.map(row => row.jid) })
 }
@@ -56,10 +54,6 @@ function isFlagged(user, category) {
     diamond: 50_000
   }
   return user.cheatFlagged === true || (Number(user[categories[category].field]) || 0) > (suspiciousLimit[category] || Number.MAX_SAFE_INTEGER)
-}
-
-function pad(value, len) {
-  return String(value).slice(0, len).padEnd(len, ' ')
 }
 
 handler.help = ['leaderboard <category> [halaman]', 'lb <category> [halaman]']

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-11T06:58:49.435Z",
+  "generatedAt": "2026-03-11T07:40:09.479Z",
   "notes": {
     "unusedDetection": "Conservative static scan. Dynamic path construction may produce false positives. DO NOT delete directly without manual validation."
   },
@@ -72,8 +72,8 @@
     },
     {
       "file": "handler.js",
-      "lines": 498,
-      "bytes": 24483
+      "lines": 509,
+      "bytes": 24748
     },
     {
       "file": "plugins/rpg-open.js",

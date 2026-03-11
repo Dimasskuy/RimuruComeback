@@ -66,6 +66,26 @@ async function acquireChatLock(key) {
     return () => chatLocks.delete(key);
 }
 
+
+function resolveCanonicalSender(conn, sender) {
+    const decoded = conn.decodeJid(sender);
+    if (!decoded) return sender;
+    if (!decoded.endsWith('@lid')) return decoded;
+    const mapped = global.db.data?.isLid?.[decoded] || conn.getJid(decoded);
+    return mapped && !String(mapped).endsWith('@lid') ? mapped : decoded;
+}
+
+function mergeIdentityData(canonicalJid) {
+    if (!canonicalJid || canonicalJid.endsWith('@lid')) return;
+    const lid = global.db.data?.jidToLid?.[canonicalJid];
+    if (!lid || !global.db.data?.users?.[lid]) return;
+    global.db.data.users[canonicalJid] = {
+        ...(global.db.data.users[canonicalJid] || {}),
+        ...global.db.data.users[lid]
+    };
+    delete global.db.data.users[lid];
+}
+
 // Cleanup stale locks setiap 10 menit
 setInterval(() => {
     const now = Date.now();
@@ -103,29 +123,20 @@ module.exports = {
                 if (!global.db.data.users) global.db.data.users = {};
                 if (!global.db.data.chats) global.db.data.chats = {};
 
-                // Resolve LID if possible using existing data
-                if (m.sender.endsWith('@lid') && global.db.data.isLid?.[m.sender]) {
-                    m.sender = global.db.data.isLid[m.sender];
-                }
+                // Resolve and normalize sender identity to phone-based JID when possible
+                m.sender = resolveCanonicalSender(this, m.sender);
 
-                // Identity Merging dengan lock untuk prevent race condition
+                // Identity merge to keep single canonical user key in database
                 if (!m.sender.endsWith('@lid')) {
-                    const lid = global.db.data.jidToLid?.[m.sender];
-                    if (lid && global.db.data.users[lid]) {
-                        const releaseLock = await acquireUserLock(m.sender);
-                        try {
-                            // Re-check setelah acquire lock
-                            if (global.db.data.users[lid]) {
-                                global.db.data.users[m.sender] = {
-                                    ...(global.db.data.users[m.sender] || {}),
-                                    ...global.db.data.users[lid]
-                                };
-                                delete global.db.data.users[lid];
-                                logger.info(`[Handler] Merged data from ${lid} to ${m.sender}`);
-                            }
-                        } finally {
-                            releaseLock();
+                    const releaseLock = await acquireUserLock(m.sender);
+                    try {
+                        const prevLid = global.db.data.jidToLid?.[m.sender];
+                        mergeIdentityData(m.sender);
+                        if (prevLid && !global.db.data.users?.[prevLid]) {
+                            logger.debug(`[Handler] Identity normalized ${prevLid} -> ${m.sender}`);
                         }
+                    } finally {
+                        releaseLock();
                     }
                 }
 

@@ -149,17 +149,22 @@ ${leaderboardText}
     let userRank = usersList.indexOf(m.sender) + 1
     let totalUsers = usersList.length
     
-    // Get top count
-    let top = args[1] && args[1].length > 0 ? Math.min(50, Math.max(parseInt(args[1]), 5)) : 5
-    top = Math.min(top, sorted.length)
+    // Pagination parameters
+    let itemsPerPage = 10
+    let page = args[1] && args[1].length > 0 ? Math.max(parseInt(args[1]), 1) : 1
+    let totalPages = Math.ceil(sorted.length / itemsPerPage)
+    page = Math.min(page, totalPages)
+
+    let startIndex = (page - 1) * itemsPerPage
+    let endIndex = startIndex + itemsPerPage
 
     // Get user value for the category
     let userValue = global.db.data.users[m.sender][cat.field] || 0
 
     // Format leaderboard text
-    let leaderboardText = sorted.slice(0, top).map(({ jid, [cat.field]: value }, i) => {
+    let leaderboardText = sorted.slice(startIndex, endIndex).map(({ jid, [cat.field]: value }, i) => {
         let name = conn.getName(jid)
-        let rank = i + 1
+        let rank = startIndex + i + 1
         let medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`
         let suspicious = isSuspicious(value, category) ? ' ⚠️' : ''
         return `${medal} @${jid.split`@`[0]}${suspicious}\n   ${cat.icon} ${formatNumber(value)} ${cat.name}`
@@ -168,7 +173,7 @@ ${leaderboardText}
     let text = `
 ╭━━━〔 *${cat.icon} ${cat.name} LEADERBOARD* 〕━━━┈⊷
 ┃
-┃ 🏆 *TOP ${top} PLAYERS*
+┃ 🏆 *Halaman ${page} / ${totalPages}*
 ┃
 ${leaderboardText}
 ┃
@@ -180,20 +185,20 @@ ${leaderboardText}
 ┃
 ┃ ──────────────────
 ┃
-┃ 💡 Ketik: *${usedPrefix + command} help*
-┃ Untuk melihat semua kategori
+┃ 💡 Ketik: *${usedPrefix + command} ${category} ${page + 1}* untuk halaman selanjutnya
+┃ Ketik: *${usedPrefix + command} help* untuk panduan lengkap
 ┃
 ┃ ⚠️ = Nilai mencurigakan (possible cheat)
 ┃
 ╰────────────────┈⊷
     `.trim()
 
-    conn.reply(m.chat, text, m, {
-        mentions: sorted.slice(0, top).map(u => u.jid)
+    conn.reply(m.chat, `[Leaderboard] — ${cat.name}\n\n${text}`, m, {
+        mentions: sorted.slice(startIndex, endIndex).map(u => u.jid)
     })
 }
 
-handler.help = ['leaderboard <category> [top]', 'lb <category> [top]']
+handler.help = ['leaderboard <category> [page]', 'lb <category> [page]']
 handler.tags = ['rpg', 'info']
 handler.command = /^(leaderboard|lb)$/i
 handler.group = true
@@ -218,10 +223,10 @@ function enumGetKey(a) {
 }
 
 function formatNumber(num) {
-    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'
-    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'
-    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'
-    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K'
+    if (num >= 1e12) return (num / 1e12).toFixed(2).replace(/\.00$/, '') + 'T'
+    if (num >= 1e9) return (num / 1e9).toFixed(2).replace(/\.00$/, '') + 'm'
+    if (num >= 1e6) return (num / 1e6).toFixed(2).replace(/\.00$/, '') + 'j'
+    if (num >= 1e3) return (num / 1e3).toFixed(2).replace(/\.00$/, '') + 'rb'
     return num.toLocaleString('id-ID')
 }
 

@@ -102,25 +102,33 @@ module.exports = {
                 if (!global.db.data.users) global.db.data.users = {};
                 if (!global.db.data.chats) global.db.data.chats = {};
 
-                // Resolve LID if possible using existing data
-                if (m.sender.endsWith('@lid') && global.db.data.isLid?.[m.sender]) {
-                    m.sender = global.db.data.isLid[m.sender];
+                // Priority: Use JID (WhatsApp Number) instead of LID.
+                // Resolving LID to JID if the incoming ID is LID.
+                if (m.sender.endsWith('@lid')) {
+                    let resolvedJid = (this.getJid && typeof this.getJid === 'function') ? this.getJid(m.sender) : global.db.data.isLid?.[m.sender];
+                    if (resolvedJid && resolvedJid.endsWith('@s.whatsapp.net')) {
+                        // Migrate data automatically if they only existed under LID
+                        if (global.db.data.users[m.sender] && !global.db.data.users[resolvedJid]) {
+                            global.db.data.users[resolvedJid] = global.db.data.users[m.sender];
+                            delete global.db.data.users[m.sender];
+                        }
+                        m.sender = resolvedJid;
+                    }
                 }
 
-                // Identity Merging dengan lock untuk prevent race condition
+                // Identity Merging (Reverse Check): if incoming is JID, fetch old LID data and merge
                 if (!m.sender.endsWith('@lid')) {
                     const lid = global.db.data.jidToLid?.[m.sender];
                     if (lid && global.db.data.users[lid]) {
                         const releaseLock = await acquireUserLock(m.sender);
                         try {
-                            // Re-check setelah acquire lock
                             if (global.db.data.users[lid]) {
                                 global.db.data.users[m.sender] = {
                                     ...(global.db.data.users[m.sender] || {}),
                                     ...global.db.data.users[lid]
                                 };
                                 delete global.db.data.users[lid];
-                                logger.info(`[Handler] Merged data from ${lid} to ${m.sender}`);
+                                logger.info(`[Handler] Merged legacy LID data from ${lid} to JID ${m.sender}`);
                             }
                         } finally {
                             releaseLock();
@@ -365,7 +373,7 @@ module.exports = {
                     else m.exp += xp;
 
                     if (!isPrems && plugin.limit && global.db.data.users[m.sender].limit < plugin.limit * 1) {
-                        this.reply(m.chat, `Limit anda habis, silahkan beli melalui *${usedPrefix}buy* atau beli di *${usedPrefix}shop*`, m);
+                        this.reply(m.chat, `[Limit] — Limit Anda habis. Cara mendapatkan limit: Beli di shop (*${usedPrefix}shop buy limit 1*) atau mainkan RPG harian. Limit tidak bisa ditransfer.`, m);
                         continue;
                     }
                     if (plugin.level > _user.level) {

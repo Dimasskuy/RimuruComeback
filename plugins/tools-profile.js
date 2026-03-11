@@ -59,6 +59,10 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
   let username = await conn.getName(who)
   let number = who.split('@')[0]
+  let phoneNumStr = PhoneNumber('+' + number).getNumber('international')
+  if (!phoneNumStr) {
+      phoneNumStr = `+${number} (LID)`
+  }
 
   let role = (level <= 2) ? 'Newbie'
     : (level <= 4) ? 'Beginner Grade 1'
@@ -131,7 +135,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 ┃@${number}
 ┃📝 • *About:* ${about || 'Tidak ada bio'}
 ┃❤️ • *Pasangan:* ${pasangan ? `@${pasangan.split('@')[0]}` : 'Jomblo'}
-┃📞 • *Number:* ${PhoneNumber('+' + number).getNumber('international')}
+┃📞 • *Number:* ${phoneNumStr}
 ┃🔗 • *Link:* https://wa.me/${number}
 ┃🔢 • *Serial:* ${sn}
 ┃🎂 • *Umur:* ${registered ? age + ' tahun' : '-'}

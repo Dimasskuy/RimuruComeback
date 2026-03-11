@@ -1,5 +1,7 @@
 //tq: hafizdexe
 
+const economyService = require('../lib/economyService')
+
 let handler = async (m, { conn, args, usedPrefix, DevMode }) => {
     if (args.length < 3) {
         return conn.reply(m.chat, `Gunakan format .tf <type> <jumlah> <@tag>\n📍contoh penggunaan: *.tf money 100 @tag*\n\n*List yang bisa di transfer :*\n💹Money\n🏷 Limit\n💳 Tabungan\n🥤Potion\n🗑️Sampah\n💎Diamond\n📦Common\n🛍️Uncommon\n🎁Mythic\n🧰Legendary\n🕸️string\n🪵kayu\n🪨batu\n⛓iron`.trim(), m)
@@ -9,6 +11,10 @@ let handler = async (m, { conn, args, usedPrefix, DevMode }) => {
         let who = m.mentionedJid ? m.mentionedJid[0] : (args[2].replace(/[@ .+-]/g, '').replace(' ', '') + '@s.whatsapp.net')
         if(!m.mentionedJid || !args[2]) throw 'Tag salah satu, atau ketik Nomernya!!'
         let users = global.db.data.users
+        if (type === 'limit' && global.gameplay?.limits_tradable === false) {
+            economyService.recordAudit({ user: m.sender, action: 'limit.transfer.blocked', status: 'blocked', meta: { target: who, amount: count } })
+            return conn.reply(m.chat, '[Limit] — Transfer limit dinonaktifkan (limits_tradable=false).', m)
+        }
         switch (type) {
         	case 'limit':
                 if (global.db.data.users[m.sender].limit >= count * 1) {

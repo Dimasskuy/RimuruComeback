@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-03-02T08:39:34.810Z",
+  "generatedAt": "2026-03-11T06:58:49.435Z",
   "notes": {
     "unusedDetection": "Conservative static scan. Dynamic path construction may produce false positives. DO NOT delete directly without manual validation."
   },
   "totals": {
-    "files": 470,
-    "jsFiles": 398,
-    "codeFiles": 407,
+    "files": 474,
+    "jsFiles": 400,
+    "codeFiles": 411,
     "assetFiles": 58
   },
   "folders": {
@@ -16,16 +16,17 @@
     "COOKIES_SETUP.md": 1,
     "cookies.txt": 1,
     "Dockerfile": 1,
-    "docs": 2,
+    "docs": 4,
     "handler.js": 1,
     "index.js": 1,
-    "lib": 28,
+    "lib": 29,
     "package-lock.json": 1,
     "package.json": 1,
     "plugins": 368,
     "README.md": 1,
     "scripts": 1,
     "src": 59,
+    "test.js": 1,
     "update-ytdlp.sh": 1
   },
   "largestJsByLines": [
@@ -71,8 +72,8 @@
     },
     {
       "file": "handler.js",
-      "lines": 488,
-      "bytes": 23965
+      "lines": 498,
+      "bytes": 24483
     },
     {
       "file": "plugins/rpg-open.js",
@@ -106,8 +107,8 @@
     },
     {
       "file": "plugins/rpg-tf.js",
-      "lines": 316,
-      "bytes": 19136
+      "lines": 322,
+      "bytes": 19541
     },
     {
       "file": "lib/myfunc.js",
@@ -140,11 +141,6 @@
       "bytes": 12432
     },
     {
-      "file": "plugins/rpg_leaderboard.js",
-      "lines": 243,
-      "bytes": 9163
-    },
-    {
       "file": "plugins/_enable.js",
       "lines": 240,
       "bytes": 5482
@@ -153,6 +149,11 @@
       "file": "plugins/_store-proses-done.js",
       "lines": 239,
       "bytes": 8231
+    },
+    {
+      "file": "plugins/rpg-adventure.js",
+      "lines": 223,
+      "bytes": 9614
     }
   ],
   "findings": {
@@ -310,7 +311,7 @@
   },
   "unusedCandidates": {
     "js": {
-      "count": 7,
+      "count": 8,
       "files": [
         "lib/functions.js",
         "lib/myfunc.js",
@@ -318,7 +319,8 @@
         "lib/sambung-kata.js",
         "lib/webp.js",
         "lib/webp2mp4.js",
-        "lib/welcome.js"
+        "lib/welcome.js",
+        "test.js"
       ]
     },
     "assets": {

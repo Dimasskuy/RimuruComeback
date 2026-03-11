@@ -70,6 +70,20 @@ global.security = {
     allowOwnerExec: process.env.ALLOW_OWNER_EXEC === 'true'
 };
 
+
+// Gameplay & economy configuration
+const limitMethods = toList(process.env.LIMIT_ACQUISITION_METHODS, 'purchase,referral,daily-quest')
+global.gameplay = {
+    limits_tradable: process.env.LIMITS_TRADABLE === 'true' ? true : false,
+    limit_acquisition_methods: limitMethods,
+    cooldown_default: Number(process.env.COOLDOWN_DEFAULT || 60 * 60 * 1000),
+    economy: {
+        BUY_MARKUP: Number(process.env.BUY_MARKUP || 1.25),
+        SELL_FACTOR: Number(process.env.SELL_FACTOR || 0.5),
+        reward_cap: Number(process.env.REWARD_CAP || 5000)
+    }
+};
+
 if (!process.env.MONGODB_URL && !process.env.MONGO_URI) {
     console.log(chalk.yellow('[Config] MONGODB_URL tidak ditemukan, memakai default lokal mongodb://127.0.0.1:27017/rimurucomeback'));
 }

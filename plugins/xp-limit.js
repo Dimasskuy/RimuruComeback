@@ -2,19 +2,10 @@ let handler = async (m) => {
     let who
     if (m.isGroup) who = m.mentionedJid[0] ? m.mentionedJid[0] : m.sender
     else who = m.sender
-    fdoc = {
-  key : {
-  remoteJid: 'status@broadcast',
-  participant : '0@s.whatsapp.net'
-  },
-  message: {
-  documentMessage: {
-  title: wm, 
-                            }
-                          }
-                        }
-m.reply(`${global.db.data.users[who].limit} Limit Tersisa`)
-
+    const user = global.db.data.users[who]
+    const isPremium = Boolean(user.premium || user.premiumTime > Date.now())
+    const limitText = isPremium ? 'Tak terbatas (**Premium**)' : `${user.limit} tersisa`
+    m.reply(`[Limit] — ${limitText}.`)
 }
 handler.help = ['limit [@user]']
 handler.tags = ['xp']

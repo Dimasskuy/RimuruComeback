@@ -4,6 +4,7 @@ const fs = require('fs');
 const chalk = require('chalk');
 const schema = require('./lib/schema');
 const logger = require('./lib/logger');
+const economyService = require('./lib/economyService');
 
 const isNumber = x => typeof x === 'number' && !isNaN(x);
 const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, ms));
@@ -365,7 +366,14 @@ module.exports = {
                     else m.exp += xp;
 
                     if (!isPrems && plugin.limit && global.db.data.users[m.sender].limit < plugin.limit * 1) {
-                        this.reply(m.chat, `Limit anda habis, silahkan beli melalui *${usedPrefix}buy* atau beli di *${usedPrefix}shop*`, m);
+                        const methods = (global.gameplay?.limit_acquisition_methods || []).join(', ') || 'purchase';
+                        this.reply(m.chat, `Limit Anda habis. Cara mendapatkan limit: ${methods}`, m);
+                        economyService.recordAudit({
+                            user: m.sender,
+                            action: 'limit.exhausted',
+                            status: 'blocked',
+                            meta: { command, methods }
+                        });
                         continue;
                     }
                     if (plugin.level > _user.level) {
@@ -407,7 +415,9 @@ module.exports = {
                 if (m && global.db.data) {
                     if (m.sender && (user = global.db.data.users?.[m.sender])) {
                     user.exp += m.exp;
-                    user.limit -= m.limit * 1;
+                    if (!(user.premium || user.premiumTime > Date.now())) {
+                        user.limit -= m.limit * 1;
+                    }
                 }
 
                     if (m.plugin && stats) {

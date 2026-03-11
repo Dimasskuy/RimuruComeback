@@ -102,7 +102,7 @@ const handler = async (m, { conn, args }) => {
 
             const interval = setInterval(() => {
                 try {
-                    if (!global.conn) {
+                    if (!global.conn || !user) {
                         clearInterval(interval);
                         return;
                     }
@@ -112,22 +112,26 @@ const handler = async (m, { conn, args }) => {
                     const pendapatan = this.jumlahPenumpang * this.pendapatanPerPenumpang;
                     this.saldo += pendapatan; // Tambah saldo sesuai dengan jumlah penumpang
                     this.saveToDatabase(); // Simpan perubahan ke database
-                    conn.reply(m.chat, `\`STATUS UPDATE\`
+                    conn.reply(m.chat, `[Pelabuhan] — Status Kapal Pesiarmu
                 
 - Menit ke-${menitKe}: Jumlah penumpang saat ini adalah ${this.jumlahPenumpang}
-
 - Pendapatan dari ${this.jumlahPenumpang} penumpang: ${pendapatan}. Saldo sekarang: ${this.saldo}`);
 
                     // Jika durasi menit sudah tercapai, hentikan interval
                     if (menitKe >= durasiMenit) {
                         clearInterval(interval);
-                        conn.reply(m.chat, `Bermain selesai setelah ${durasiMenit} menit.`);
+                        conn.reply(m.chat, `[Pelabuhan] — Pelayaran selesai setelah ${durasiMenit} menit.`);
                     }
                 } catch (e) {
                     console.error('Error in pelabuhan interval:', e);
                     clearInterval(interval);
                 }
             }, 60000); // 60000 ms = 1 menit
+
+            // Tambahkan timeout pengaman jika interval menggantung lebih dari estimasi waktu max (misal 10 menit max)
+            setTimeout(() => {
+                clearInterval(interval);
+            }, (durasiMenit + 2) * 60000);
         }
     }  
 

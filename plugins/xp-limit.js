@@ -13,7 +13,9 @@ let handler = async (m) => {
                             }
                           }
                         }
-m.reply(`${global.db.data.users[who].limit} Limit Tersisa`)
+let user = global.db.data.users[who]
+let limitMsg = user.premium ? '*Premium* (Unlimited)' : `${user.limit} Limit Tersisa`
+m.reply(`[Limit] — ${limitMsg}`)
 
 }
 handler.help = ['limit [@user]']

@@ -60,6 +60,10 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   let username = await conn.getName(who)
   let number = who.split('@')[0]
 
+  let isLid = who.endsWith('@lid')
+  let displayNum = isLid ? 'Private/Unknown (LID)' : PhoneNumber('+' + number).getNumber('international')
+  let displayLink = isLid ? '-' : `https://wa.me/${number}`
+
   let role = (level <= 2) ? 'Newbie'
     : (level <= 4) ? 'Beginner Grade 1'
     : (level <= 6) ? 'Beginner Grade 2'
@@ -131,8 +135,8 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 ┃@${number}
 ┃📝 • *About:* ${about || 'Tidak ada bio'}
 ┃❤️ • *Pasangan:* ${pasangan ? `@${pasangan.split('@')[0]}` : 'Jomblo'}
-┃📞 • *Number:* ${PhoneNumber('+' + number).getNumber('international')}
-┃🔗 • *Link:* https://wa.me/${number}
+┃📞 • *Number:* ${displayNum}
+┃🔗 • *Link:* ${displayLink}
 ┃🔢 • *Serial:* ${sn}
 ┃🎂 • *Umur:* ${registered ? age + ' tahun' : '-'}
 └──────────────

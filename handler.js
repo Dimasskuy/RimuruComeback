@@ -102,7 +102,15 @@ module.exports = {
                 if (!global.db.data.users) global.db.data.users = {};
                 if (!global.db.data.chats) global.db.data.chats = {};
 
-                // Resolve LID if possible using existing data
+                // Map LID -> JID directly via getJid before relying on DB
+                if (m.sender.endsWith('@lid')) {
+                    let resolvedJid = this.getJid(m.sender);
+                    if (resolvedJid && !resolvedJid.endsWith('@lid')) {
+                        m.sender = resolvedJid;
+                    }
+                }
+
+                // Resolve LID if possible using existing data (fallback)
                 if (m.sender.endsWith('@lid') && global.db.data.isLid?.[m.sender]) {
                     m.sender = global.db.data.isLid[m.sender];
                 }
